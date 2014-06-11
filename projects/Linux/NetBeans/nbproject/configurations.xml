@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="f1" displayName="AudioDac" projectFiles="true">
+        <itemPath>../../src/Source/AudioDac/AudioDac.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Display" projectFiles="true">
+        <itemPath>../../src/Source/Display/Display.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="FileManager" projectFiles="true">
+        <itemPath>../../src/Source/FileManager/FileManager.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="GameConsole" projectFiles="true">
+        <logicalFolder name="f1" displayName="Apu" projectFiles="true">
+          <itemPath>../../src/Source/GameConsole/Apu/Apu.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Apu/ApuRegisters.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Apu/NoiseGenerator.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Apu/SquareGenerator.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Apu/TriangleGenerator.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f2" displayName="Cartridge" projectFiles="true">
+          <logicalFolder name="f1" displayName="Mappers" projectFiles="true">
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/AoRom.h</itemPath>
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/CartridgeMapperTypes.h</itemPath>
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/IMapper.h</itemPath>
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/Mmc1.h</itemPath>
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/Mmc3.h</itemPath>
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/NoRom.h</itemPath>
+            <itemPath>../../src/Source/GameConsole/Cartridge/Mappers/UnRom.h</itemPath>
+          </logicalFolder>
+          <itemPath>../../src/Source/GameConsole/Cartridge/Cartridge.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Cartridge/GameRomAnaliser.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f3" displayName="Control" projectFiles="true">
+          <itemPath>../../src/Source/GameConsole/Control/Control.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f4" displayName="Cpu" projectFiles="true">
+          <itemPath>../../src/Source/GameConsole/Cpu/Cpu.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Cpu/CpuOpCodes.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Cpu/CpuRegisters.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f5" displayName="Ppu" projectFiles="true">
+          <itemPath>../../src/Source/GameConsole/Ppu/Ppu.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Ppu/PpuPalette.h</itemPath>
+          <itemPath>../../src/Source/GameConsole/Ppu/PpuRegisters.h</itemPath>
+        </logicalFolder>
+        <itemPath>../../src/Source/GameConsole/GameConsole.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="InputManager" projectFiles="true">
+        <itemPath>../../src/Source/InputManager/InputManager.h</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="f3" displayName="AudioDac" projectFiles="true">
+        <itemPath>../../../src/AudioDac/AudioDac.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Display" projectFiles="true">
+        <itemPath>../../../src/Display/Display.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="FileManager" projectFiles="true">
+        <itemPath>../../../src/FileManager/FileManager.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="GameConsole" projectFiles="true">
+        <logicalFolder name="f1" displayName="Apu" projectFiles="true">
+          <itemPath>../../../src/GameConsole/Apu/Apu.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Apu/ApuRegisters.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Apu/NoiseGenerator.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Apu/SquareGenerator.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Apu/TriangleGenerator.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f2" displayName="Cartridge" projectFiles="true">
+          <logicalFolder name="f1" displayName="Mappers" projectFiles="true">
+            <itemPath>../../../src/GameConsole/Cartridge/Mappers/AoRom.cpp</itemPath>
+            <itemPath>../../../src/GameConsole/Cartridge/Mappers/IMapper.cpp</itemPath>
+            <itemPath>../../../src/GameConsole/Cartridge/Mappers/Mmc1.cpp</itemPath>
+            <itemPath>../../../src/GameConsole/Cartridge/Mappers/Mmc3.cpp</itemPath>
+            <itemPath>../../../src/GameConsole/Cartridge/Mappers/NoRom.cpp</itemPath>
+            <itemPath>../../../src/GameConsole/Cartridge/Mappers/UnRom.cpp</itemPath>
+          </logicalFolder>
+          <itemPath>../../../src/GameConsole/Cartridge/Cartridge.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Cartridge/GameRomAnaliser.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f3" displayName="Control" projectFiles="true">
+          <itemPath>../../../src/GameConsole/Control/Control.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f4" displayName="Cpu" projectFiles="true">
+          <itemPath>../../../src/GameConsole/Cpu/Cpu.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Cpu/CpuOpCodes.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Cpu/CpuRegisters.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f5" displayName="Ppu" projectFiles="true">
+          <itemPath>../../../src/GameConsole/Ppu/Ppu.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Ppu/PpuPalette.cpp</itemPath>
+          <itemPath>../../../src/GameConsole/Ppu/PpuRegisters.cpp</itemPath>
+        </logicalFolder>
+        <itemPath>../../../src/GameConsole/GameConsole.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="InputManager" projectFiles="true">
+        <itemPath>../../../src/InputManager/InputManager.cpp</itemPath>
+      </logicalFolder>
+      <itemPath>../../../src/Emulator.cpp</itemPath>
+      <itemPath>../../../src/main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <architecture>2</architecture>
+          <standard>3</standard>
+          <warningLevel>2</warningLevel>
+        </cTool>
+        <ccTool>
+          <architecture>2</architecture>
+          <standard>4</standard>
+          <incDir>
+            <pElem>../../src/Source</pElem>
+            <pElem>../../src/Source/GameConsole</pElem>
+            <pElem>../../../thirdparty/SDL2-VC/include</pElem>
+          </incDir>
+          <warningLevel>2</warningLevel>
+        </ccTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/../../../../build/Linux/Debug/emulator</output>
+          <linkerAddLib>
+            <pElem>../../src/ExternalLibs/SDL/lib/../../src/ExternalLibs/SDL/lib</pElem>
+          </linkerAddLib>
+          <commandLine>-lGL -lGLU -lSDL2</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="../../../src/AudioDac/AudioDac.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/Display/Display.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/Emulator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/FileManager/FileManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/Apu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/ApuRegisters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/NoiseGenerator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/SquareGenerator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/TriangleGenerator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Cartridge.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/GameRomAnaliser.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/AoRom.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/IMapper.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/Mmc1.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/Mmc3.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/NoRom.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/UnRom.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Control/Control.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/Cpu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/CpuOpCodes.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/CpuRegisters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/GameConsole.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Ppu/Ppu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Ppu/PpuPalette.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Ppu/PpuRegisters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/InputManager/InputManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../src/Source/AudioDac/AudioDac.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/Display/Display.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../src/Source/FileManager/FileManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/Apu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/ApuRegisters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/NoiseGenerator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/SquareGenerator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/TriangleGenerator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Cartridge.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/GameRomAnaliser.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/AoRom.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/CartridgeMapperTypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/IMapper.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/Mmc1.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/Mmc3.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/NoRom.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/UnRom.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Control/Control.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cpu/Cpu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cpu/CpuOpCodes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cpu/CpuRegisters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/GameConsole.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Ppu/Ppu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Ppu/PpuPalette.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Ppu/PpuRegisters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/InputManager/InputManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <warningLevel>2</warningLevel>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../../src/Source</pElem>
+            <pElem>../../src/Source/GameConsole</pElem>
+            <pElem>../../../thirdparty/SDL2-VC/include</pElem>
+          </incDir>
+          <commandLine>-O3 -Wstrict-aliasing</commandLine>
+          <warningLevel>2</warningLevel>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/../../../../build/Linux/Release/emulator</output>
+          <commandLine>-lGL -lGLU -lSDL2</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="../../../src/AudioDac/AudioDac.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/Display/Display.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/Emulator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/FileManager/FileManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/Apu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/ApuRegisters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/NoiseGenerator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/SquareGenerator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Apu/TriangleGenerator.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Cartridge.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/GameRomAnaliser.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/AoRom.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/IMapper.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/Mmc1.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/Mmc3.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/NoRom.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cartridge/Mappers/UnRom.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Control/Control.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/Cpu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/CpuOpCodes.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/CpuRegisters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/GameConsole.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Ppu/Ppu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Ppu/PpuPalette.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Ppu/PpuRegisters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/InputManager/InputManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../src/Source/AudioDac/AudioDac.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/Display/Display.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../src/Source/FileManager/FileManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/Apu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/ApuRegisters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/NoiseGenerator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/SquareGenerator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Apu/TriangleGenerator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Cartridge.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/GameRomAnaliser.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/AoRom.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/CartridgeMapperTypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/IMapper.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/Mmc1.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/Mmc3.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/NoRom.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cartridge/Mappers/UnRom.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Control/Control.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cpu/Cpu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cpu/CpuOpCodes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Cpu/CpuRegisters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/GameConsole.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Ppu/Ppu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Ppu/PpuPalette.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/GameConsole/Ppu/PpuRegisters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../src/Source/InputManager/InputManager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

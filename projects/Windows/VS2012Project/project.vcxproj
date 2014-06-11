@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\AudioDac\AudioDac.cpp" />
+    <ClCompile Include="..\..\..\src\Display\Display.cpp" />
+    <ClCompile Include="..\..\..\src\Emulator.cpp" />
+    <ClCompile Include="..\..\..\src\FileManager\FileManager.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Apu\Apu.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Apu\ApuRegisters.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Apu\NoiseGenerator.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Apu\SquareGenerator.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Apu\TriangleGenerator.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Cartridge.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\GameRomAnaliser.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\AoRom.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\IMapper.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\Mmc1.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\Mmc3.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\NoRom.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\UnRom.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Control\Control.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cpu\Cpu.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cpu\CpuOpCodes.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Cpu\CpuRegisters.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\GameConsole.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Ppu\Ppu.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Ppu\PpuPalette.cpp" />
+    <ClCompile Include="..\..\..\src\GameConsole\Ppu\PpuRegisters.cpp" />
+    <ClCompile Include="..\..\..\src\InputManager\InputManager.cpp" />
+    <ClCompile Include="..\..\..\src\main.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{44C2D06E-DF8C-42A5-8AAF-BC0883F088D2}</ProjectGuid>
+    <RootNamespace>project</RootNamespace>
+    <ProjectName>NesEmulator</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\..\..\..\build\Windows\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\..\..\..\build\Temp\Windows\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)/../../../build/Windows/$(Configuration)/</OutDir>
+    <IntDir>$(SolutionDir)/../../../build/Temp/Windows/$(Configuration)/</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\;..\..\..\include;..\..\..\thirdparty\SDL2-VC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeaderFile />
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\thirdparty\SDL2-VC\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>../../../build/Windows/Debug/NesEmulator$(TargetExt)</OutputFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <OutputFile>../../../build/Windows/libOSCES$(TargetExt)</OutputFile>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>..\..\..\thirdparty\SDL2-VC\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <BuildLog>
+      <Path>$(SolutionDir)\..\..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\..\;..\..\..\include;..\..\..\thirdparty\SDL2-VC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\thirdparty\SDL2-VC\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>../../../build/Windows/Release/NesEmulator$(TargetExt)</OutputFile>
+    </Link>
+    <Lib>
+      <OutputFile>../../lib/libOSCES$(TargetExt)</OutputFile>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\thirdparty\SDL2-VC\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <BuildLog>
+      <Path>$(SolutionDir)/../../../../build/Temp/Windows/$(Configuration)/build.log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
