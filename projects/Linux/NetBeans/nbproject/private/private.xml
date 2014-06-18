@@ -7,21 +7,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Cartridge/Mappers/Mmc3.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/FileManager/FileManager.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/Emulator.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Ppu/Ppu.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/main.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Apu/Apu.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Apu/SquareGenerator.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/AudioDac/AudioDac.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/Display/Display.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Cartridge/Mappers/IMapper.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/GameConsole.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Cartridge/Cartridge.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Cartridge/Mappers/Mmc1.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Apu/NoiseGenerator.cpp</file>
-            <file>file:/home/xmega/Dropbox/Shared/IgorBelorusPetcube/Emulator/src/GameConsole/Apu/TriangleGenerator.cpp</file>
+            <file>file:/home/xmega/NES_REPO/NES-Emulator/src/Display/Display.cpp</file>
+            <file>file:/home/xmega/NES_REPO/NES-Emulator/src/FileManager/FileManager.cpp</file>
         </group>
     </open-files>
 </project-private>
