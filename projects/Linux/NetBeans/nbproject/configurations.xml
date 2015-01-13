@@ -151,7 +151,7 @@
           <linkerAddLib>
             <pElem>../../src/ExternalLibs/SDL/lib/../../src/ExternalLibs/SDL/lib</pElem>
           </linkerAddLib>
-          <commandLine>-lGL -lGLU -lSDL2</commandLine>
+          <commandLine>-lSDL2</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../src/AudioDac/AudioDac.cpp" ex="false" tool="1" flavor2="0">
@@ -434,7 +434,7 @@
         </asmTool>
         <linkerTool>
           <output>${CND_DISTDIR}/../../../../build/Linux/Release/emulator</output>
-          <commandLine>-lGL -lGLU -lSDL2</commandLine>
+          <commandLine>-lSDL2</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../src/AudioDac/AudioDac.cpp" ex="false" tool="1" flavor2="0">

@@ -86,7 +86,7 @@ LDLIBSOPTIONS=-L../../src/ExternalLibs/SDL/lib/../../src/ExternalLibs/SDL/lib
 
 ${CND_DISTDIR}/../../../../build/Linux/Debug/emulator: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/../../../../build/Linux/Debug
-	${LINK.cc} -o ${CND_DISTDIR}/../../../../build/Linux/Debug/emulator ${OBJECTFILES} ${LDLIBSOPTIONS} -lGL -lGLU -lSDL2
+	${LINK.cc} -o ${CND_DISTDIR}/../../../../build/Linux/Debug/emulator ${OBJECTFILES} ${LDLIBSOPTIONS} -lSDL2
 
 ${OBJECTDIR}/_ext/374577674/AudioDac.o: ../../../src/AudioDac/AudioDac.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/374577674
