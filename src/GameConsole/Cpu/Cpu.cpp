@@ -760,7 +760,7 @@ void Cpu_t::CommandExecute(void)
     }
 }
 
-uint8_t Cpu_t::Run( void )
+uint8_t Cpu_t::Run()
 {
     uint8_t   opcode;
     uint8_t*  pFetchWord = ( uint8_t * )&m_FetchWord;

@@ -14,7 +14,7 @@ int main()
 {
     Emulator_t* pEmulator = new Emulator_t;
 
-	if( 0 != pEmulator )
+	if( NULL != pEmulator )
 	{
 		pEmulator->Init();
 

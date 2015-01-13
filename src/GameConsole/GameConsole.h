@@ -35,6 +35,11 @@
 
 
 //#define INTERNAL_RAM_BASE_CPU_ADDR  0x0000
+#define USECOND_IN_SECOND          1000000
+#define NTSC_FPS				   60
+#define ONE_FRAME_TIME             USECOND_IN_SECOND / NTSC_FPS
+
+
 #define INTERNAL_RAM_SIZE           0x0800
 
 typedef void (*PresentFrameCallBack_t)     ( _out_ void * context, uint8_t* pData, uint16_t len, uint16_t posInFrame );

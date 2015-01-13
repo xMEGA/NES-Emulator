@@ -46,7 +46,7 @@ public:
     void InterruptRequest(void);
     //---------------------------------
     
-    uint8_t Run(void);
+    uint8_t Run();
 
 private:
     inline void CalcZeroFlag( uint16_t n );

@@ -96,7 +96,7 @@ void GameConsole_t::CartridgeIrqCallBack( void* pContext )
 void GameConsole_t::Run( uint32_t sysTick )
 {
 
-    if( ( sysTick - m_FramesLastSysTick ) >= 1000000 )
+    if( ( sysTick - m_FramesLastSysTick ) >= USECOND_IN_SECOND )
     {
         m_FramesLastSysTick = sysTick;
         m_FramesPerSecond = m_FramesCnt;
@@ -104,8 +104,8 @@ void GameConsole_t::Run( uint32_t sysTick )
     }
 
     uint32_t deltaTime = sysTick - m_LastSysTick;
-
-    if ( deltaTime > 16667 )
+	
+    if ( deltaTime > ONE_FRAME_TIME )
     {
         m_LastSysTick = sysTick; 
 
@@ -113,11 +113,9 @@ void GameConsole_t::Run( uint32_t sysTick )
 
         uint32_t ppuCycles = 0;
 
-        fp_PresentFrameCallBack( m_pContext, 0, 0, 0 );
-
         do
         {
-            uint16_t cycles = m_Cpu.Run();
+            uint32_t cycles = m_Cpu.Run();
             ppuCycles += m_Ppu.Run( cycles );            
         }
         while( ( ppuCycles < 89342  ) );

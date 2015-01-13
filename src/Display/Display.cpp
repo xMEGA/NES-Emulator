@@ -13,6 +13,21 @@ Display_t::Display_t()
     m_Renderer = 0;
 }
 
+void* Display_t::GetFrameBuffer()
+{
+    return m_pFrame[ m_CurrentFrame ];
+}
+
+uint32_t Display_t::GetSizeVertical()
+{
+    return m_SurfaceSizeY;
+}
+
+uint32_t Display_t::GetSizeHorizontal()
+{
+    return m_SurfaceSizeX;
+}
+
 void Display_t::Clear()
 {
     uint32_t len = m_SurfaceSizeX * m_SurfaceSizeY;
@@ -23,12 +38,12 @@ void Display_t::Clear()
     }
 }
 
-void Display_t::Init( uint16_t xSize, uint16_t ySize )
+void Display_t::Init( uint16_t xSize, uint16_t ySize, bool isVsyncEnable  )
 { 
-   Init( xSize, ySize, xSize, ySize );
+   Init( xSize, ySize, xSize, ySize, isVsyncEnable );
 }
 
-void Display_t::Init( uint16_t xSize, uint16_t ySize, uint16_t xWindowSize, uint16_t yWindowSize )
+void Display_t::Init( uint16_t xSize, uint16_t ySize, uint16_t xWindowSize, uint16_t yWindowSize, bool isVsyncEnable  )
 {
     m_SurfaceSizeX = xSize;
     m_SurfaceSizeY = ySize;
@@ -52,12 +67,13 @@ void Display_t::Init( uint16_t xSize, uint16_t ySize, uint16_t xWindowSize, uint
 
     if( 0 == m_Renderer )
     {
-        m_Renderer = SDL_CreateRenderer( m_pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+		uint32_t additionFlags = ( true == isVsyncEnable ) ? SDL_RENDERER_PRESENTVSYNC : 0;
+        m_Renderer = SDL_CreateRenderer( m_pWindow, -1, SDL_RENDERER_ACCELERATED | additionFlags );
     }
 
     if( 0 == m_Texture )
     {
-        m_Texture = SDL_CreateTexture( m_Renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, m_SurfaceSizeX, m_SurfaceSizeY );
+        m_Texture = SDL_CreateTexture( m_Renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, m_SurfaceSizeX, m_SurfaceSizeY );
     }
 
     WindowResize( xWindowSize, yWindowSize );

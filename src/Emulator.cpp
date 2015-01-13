@@ -17,7 +17,7 @@ void Emulator_t::Init()
     m_GameConsole.SetRomFileAccesCallBack( RomFileAcces, this );
     m_GameConsole.SetAudioSamplingRate( AUDIO_DAC_SAMPLING_RATE );
    
-    m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_PAL_RESOLUTION, 2*PPU_HORIZONTAL_RESOLUTION, 2*PPU_VERTICAL_PAL_RESOLUTION );
+    m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_PAL_RESOLUTION, 2*PPU_HORIZONTAL_RESOLUTION, 2*PPU_VERTICAL_PAL_RESOLUTION, false );
 
     m_Display.Clear();
     m_Display.Flip();
@@ -74,7 +74,7 @@ bool Emulator_t::Run()
 
 void Emulator_t::ShowFps( uint16_t fps )
 {
-    char fpsStr[20];
+    char fpsStr[ 20 ];
     sprintf( fpsStr, "FPS = %d", fps );
     m_Display.SetTitle( fpsStr );
 }
@@ -160,18 +160,45 @@ void Emulator_t::PresentFrame( _in_ void * pContext, uint8_t* pData, uint16_t le
 {    
     Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
 
-    if( pData )
+
+#ifdef DISPLAY_332
+
+    static uint8_t* pPixel = ( uint8_t* )System->GetDisplay()->GetFrameBuffer();
+    static uint8_t* pPalette = GetPalettePixel332();
+    static uint32_t displayAlign = System->GetDisplay()->GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
+
+    if( 0 == posInFrame )
     {
-        for ( uint16_t xVisible = 0; xVisible < PPU_HORIZONTAL_RESOLUTION; xVisible++ ) 
-        {
-            uint8_t color = pData[ xVisible ];
-            color &= ~0xC0;
-            //color = 255 - color;
-            emulator->m_Display.DrawPixel( xVisible, posInFrame/PPU_HORIZONTAL_RESOLUTION, GetPalettePixel( color )->Red, GetPalettePixel( color )->Green, GetPalettePixel( color )->Blue );
-        }
+        System->GetDisplay()->Flip();
+        pPixel = ( uint8_t* )System->GetDisplay()->GetFrameBuffer();
     }
-    else
+    	
+    for( uint16_t xVisible = 0; xVisible < PPU_HORIZONTAL_RESOLUTION; xVisible++ ) 
     {
-        emulator->m_Display.Flip();
+        *pPixel ++= pPalette[ *pData++ ];
     }
+
+    pPixel += displayAlign;
+
+#else
+
+    static uint32_t* pPixel = ( uint32_t* )emulator->m_Display.GetFrameBuffer();
+    static uint32_t* pPalette = GetPalettePixelRGBA();
+    static uint32_t  displayAlign = emulator->m_Display.GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
+
+    if( 0 == posInFrame )
+    {
+          emulator->m_Display.Flip();
+          pPixel = ( uint32_t* )emulator->m_Display.GetFrameBuffer();
+    }
+    
+    for( uint16_t xVisible = 0; xVisible < PPU_HORIZONTAL_RESOLUTION; xVisible++ ) 
+    {
+          *pPixel ++= pPalette[ *pData++ ];
+    }
+
+    pPixel += displayAlign;
+
+#endif
+
 }
