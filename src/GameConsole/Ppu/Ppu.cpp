@@ -376,50 +376,50 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
 
     for( uint32_t idx = 0; idx != reqCycles; idx++ )
     {
-		if( ( m_PpuCycles > PPU_SET_VBLANK_CYCLE ) && ( ( m_PpuCycles + reqCycles ) < PPU_CLEAR_VBLANK_SPRITE0_CYCLE ) ) // Iddle
-		{
-			m_PpuCycles += reqCycles;
-			break;
-		}
+        if( ( m_PpuCycles > PPU_SET_VBLANK_CYCLE ) && ( ( m_PpuCycles + reqCycles ) < PPU_CLEAR_VBLANK_SPRITE0_CYCLE ) ) // Iddle
+        {
+            m_PpuCycles += reqCycles;
+            break;
+        }
 
-		if( m_PpuCycles >= PPU_FRAME_CYCLES )
-		{
-			m_PpuCycles = 0;
-			m_IsOddFrame ^= SET_BIT;                      // Toggle Odd/Even frame
+        if( m_PpuCycles >= PPU_FRAME_CYCLES )
+        {
+            m_PpuCycles = 0;
+            m_IsOddFrame ^= SET_BIT;                      // Toggle Odd/Even frame
 
-			if( SET_BIT == m_IsOddFrame )
-			{
-				m_PpuCycles ++;
-			}
-		}
+            if( SET_BIT == m_IsOddFrame )
+            {
+                m_PpuCycles ++;
+            }
+        }
+
+        if( ( 0 == m_PpuCycles % 8 ) && ( 0 != m_PpuCycles ) )
+        {
+            /*for( uint32_t idx = 0; idx < 200; idx++ )
+            {
+
+            }*/
+        }
 	
-		if( ( 0 == m_PpuCycles % 8 ) && ( 0 != m_PpuCycles ) )
-		{
-			/*for( uint32_t idx = 0; idx < 200; idx++ )
-			{
-
-			}*/
-		}
-	
-		if( PPU_SET_VBLANK_CYCLE == m_PpuCycles )
-		{
+        if( PPU_SET_VBLANK_CYCLE == m_PpuCycles )
+        {
             m_PpuRegisters.SR.VsyncFlag = SET_BIT;
             
             if( m_PpuRegisters.C1.NmiRequestEnable )
             {
                 fp_VsyncSignalCallBack( m_pContext );
             }
-		}
+        }
 
-		if( PPU_CLEAR_VBLANK_SPRITE0_CYCLE == m_PpuCycles )
-		{
+        if( PPU_CLEAR_VBLANK_SPRITE0_CYCLE == m_PpuCycles )
+        {
             m_PpuRegisters.SR.VsyncFlag          = CLR_BIT;
             m_PpuRegisters.SR.ZeroSpriteDetected = CLR_BIT;
-		}
+        }
 
-		m_PpuCycles ++;
+        m_PpuCycles ++;
 	
-	}
+    }
     
 
     return returnCycles;
