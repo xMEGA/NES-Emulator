@@ -15,7 +15,7 @@
 
 
 #define AUDIO_DAC_SAMPLING_RATE   44100
-#define AUDIO_DAC_BUFFER_SIZE     512
+#define AUDIO_DAC_BUFFER_SIZE     1024
 
 
 typedef void (*QueryFrameCallBack_t) ( _out_ void * pContext, _out_ int16_t* pData, _in_ uint16_t bytesCnt );
