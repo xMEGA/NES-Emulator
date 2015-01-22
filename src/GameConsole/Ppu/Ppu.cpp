@@ -1,4 +1,4 @@
-#include "Ppu.h"
+﻿#include "Ppu.h"
 
 // Примечание:
 // Символ - блок изображения размером 8 x 8, для формирования фона
@@ -364,9 +364,68 @@ void Ppu_t::VideoRamFoneFetch( void )
            
 }
 
+#define NEW_PPU_RUN 0
+
+#if NEW_PPU_RUN
 
 
+uint32_t Ppu_t::Run( uint16_t cpuCycles )
+{
+    uint32_t reqCycles = cpuCycles * 3;
+    uint32_t returnCycles = reqCycles;
 
+    for( uint32_t idx = 0; idx != reqCycles; idx++ )
+    {
+		if( ( m_PpuCycles > PPU_SET_VBLANK_CYCLE ) && ( ( m_PpuCycles + reqCycles ) < PPU_CLEAR_VBLANK_SPRITE0_CYCLE ) ) // Iddle
+		{
+			m_PpuCycles += reqCycles;
+			break;
+		}
+
+		if( m_PpuCycles >= PPU_FRAME_CYCLES )
+		{
+			m_PpuCycles = 0;
+			m_IsOddFrame ^= SET_BIT;                      // Toggle Odd/Even frame
+
+			if( SET_BIT == m_IsOddFrame )
+			{
+				m_PpuCycles ++;
+			}
+		}
+	
+		if( ( 0 == m_PpuCycles % 8 ) && ( 0 != m_PpuCycles ) )
+		{
+			/*for( uint32_t idx = 0; idx < 200; idx++ )
+			{
+
+			}*/
+		}
+	
+		if( PPU_SET_VBLANK_CYCLE == m_PpuCycles )
+		{
+            m_PpuRegisters.SR.VsyncFlag = SET_BIT;
+            
+            if( m_PpuRegisters.C1.NmiRequestEnable )
+            {
+                fp_VsyncSignalCallBack( m_pContext );
+            }
+		}
+
+		if( PPU_CLEAR_VBLANK_SPRITE0_CYCLE == m_PpuCycles )
+		{
+            m_PpuRegisters.SR.VsyncFlag          = CLR_BIT;
+            m_PpuRegisters.SR.ZeroSpriteDetected = CLR_BIT;
+		}
+
+		m_PpuCycles ++;
+	
+	}
+    
+
+    return returnCycles;
+}
+
+#else 
 
 uint32_t Ppu_t::Run( uint16_t cpuCycles )
 {
@@ -451,7 +510,7 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
 
     return returnCycles;
 }
-
+#endif
 
 void Ppu_t::RunVisibleScanLine( void )
 {

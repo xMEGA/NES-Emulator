@@ -82,6 +82,10 @@
 #define PPU_CLR_VERT_BLANK_CYCLE            1         // Номер цикла ( от начала линии ) на во время которого нужно сбросить VsyncFlag 
 
 
+#define PPU_SET_VBLANK_CYCLE            82183
+#define PPU_CLEAR_VBLANK_SPRITE0_CYCLE  89003
+#define PPU_FRAME_CYCLES                89342
+
 enum PpuState_t
 {
     PPU_VISIBLE_SCAN_LINES_STATE     = 0,
