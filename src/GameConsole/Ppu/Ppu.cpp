@@ -23,7 +23,7 @@ void Ppu_t::SavePpuContext( uint8_t* pOutData )
 
     for( uint8_t i = 0; i != PPU_FONE_PALETTE_SIZE; i++ )
     {
-        *pData ++= m_PaletteFone[ i ]; 
+        *pData ++= m_PaletteBg[ i ]; 
     }
 
     for( uint8_t i = 0; i != PPU_SPRITES_PALETTE_SIZE; i++ )
@@ -52,7 +52,7 @@ void Ppu_t::LoadPpuContext( uint8_t* pInData )
 
     for( uint8_t i = 0; i != PPU_FONE_PALETTE_SIZE; i++ )
     {
-        m_PaletteFone[ i ] = *pData ++; 
+        m_PaletteBg[ i ] = *pData ++; 
     }
 
     for( uint8_t i = 0; i != PPU_SPRITES_PALETTE_SIZE; i++ )
@@ -124,22 +124,22 @@ void Ppu_t::ReflectPalette( uint8_t value )
     {
         case 0:
             m_PaletteSprites[ 0 ] = value;
-            m_PaletteFone   [ 0 ] = value;
+            m_PaletteBg   [ 0 ] = value;
         break;
                 
         case 4:
             m_PaletteSprites[ 4 ] = value;
-            m_PaletteFone   [ 4 ] = value;
+            m_PaletteBg   [ 4 ] = value;
         break;
 
         case 8:
             m_PaletteSprites[ 8 ] = value;
-            m_PaletteFone   [ 8 ] = value;
+            m_PaletteBg   [ 8 ] = value;
         break;
 
         case 12:
             m_PaletteSprites[ 12] = value;
-            m_PaletteFone   [ 12] = value;
+            m_PaletteBg   [ 12] = value;
         break;
                 
         default: break;
@@ -176,7 +176,7 @@ uint8_t Ppu_t::Read(uint16_t addr)
             else if( m_CurrVideoRamAddr.value < PPU_PALETTE_SPRITES_BASE_ADDR ) 
             {
                 addr = m_CurrVideoRamAddr.value - PPU_PALETTE_FONE_BASE_ADDR + m_AddrIncValue;
-                retValue = m_PaletteFone[ addr ];
+                retValue = m_PaletteBg[ addr ];
             }
             else 
             {
@@ -272,7 +272,7 @@ void Ppu_t::Write(uint16_t addr, uint8_t data)
         else if( m_CurrVideoRamAddr.value < PPU_PALETTE_SPRITES_BASE_ADDR ) 
         {
             addr = m_CurrVideoRamAddr.value - PPU_PALETTE_FONE_BASE_ADDR;
-            m_PaletteFone   [ addr ] = data & 0x3F;
+            m_PaletteBg   [ addr ] = data & 0x3F;
             ReflectPalette( data );
         }
         else 
@@ -288,43 +288,25 @@ void Ppu_t::Write(uint16_t addr, uint8_t data)
 
 void Ppu_t::VideoRamAddrHorizontalInrement( void )
 {
-    if( ( m_CurrVideoRamAddr.value & 0x001F ) == 31)
+    if( 31 == m_CurrVideoRamAddr.CoarseScrollX )
     {
-        m_CurrVideoRamAddr.value &= ~0x001F;
-        m_CurrVideoRamAddr.value ^= 0x0400;
+        //m_CurrVideoRamAddr.NameTableSelect++;
+        m_CurrVideoRamAddr.NameTableSelect ^= 1;
     }
-    else
-    {
-        m_CurrVideoRamAddr.value++;
-    }
+   
+    m_CurrVideoRamAddr.CoarseScrollX++;
+   
 }
 
 void Ppu_t::VideoRamAddrVerticalInrement( void )
 {
-    if( ( m_CurrVideoRamAddr.value & 0x7000 ) != 0x7000 )
-    {
-        m_CurrVideoRamAddr.value += 0x1000;
-    }
-    else
-    {
-        m_CurrVideoRamAddr.value &= 0x0FFF;
-        int y = ( m_CurrVideoRamAddr.value & 0x03E0) >> 5;
-        if( y == 29 )
-        {
-            y = 0;
-            m_CurrVideoRamAddr.value ^= 0x0800;
-        }
-        else if( y == 31 )
-        {
-            y = 0;
-        }
-        else
-        {
-            y++;
-        }
 
-        m_CurrVideoRamAddr.value = ( m_CurrVideoRamAddr.value & ~0x03E0 ) | ( y << 5);   
+    if( 7 == m_CurrVideoRamAddr.FineScrollY )
+    {
+        m_CurrVideoRamAddr.CoarseScrollY++;
     }
+    
+    m_CurrVideoRamAddr.FineScrollY ++;
 }
 
 void Ppu_t::VideoRamAddrHorizontalCopy( void )
@@ -341,26 +323,53 @@ void Ppu_t::VideoRamAddrVerticalCopy( void )
 }
    
  
-void Ppu_t::VideoRamFoneFetch( void )
+#define PPU_PATTERN_SIZE 8
+
+//void Ppu_t::VideoRamBgFetch( void )
+//{
+//    uint16_t nameTableTileAddr = PPU_SCREEN_PAGE1_BASE_ADDR | ( m_CurrVideoRamAddr.value & 0x0FFF );    
+//    
+//    uint8_t patternIdx     = fp_BusReadCallBack( m_pContext, nameTableTileAddr );
+// 
+//    
+//    uint16_t attributeAddr = PPU_SCREEN_PAGE1_BASE_ADDR | PPU_SCREEN_PAGE_SYMBOLS_AREA_SIZE | ( m_CurrVideoRamAddr.NameTableSelect) | ( ( m_CurrVideoRamAddr.value >> 4 ) & 0x38 ) | ( ( m_CurrVideoRamAddr.value >> 2 ) & 0x07);
+//        
+//
+//    m_SymbolItemByte.value >>= 8;    
+//    m_SymbolItemByte.HidhPart = fp_BusReadCallBack( m_pContext, attributeAddr );   
+//            
+//    //symbolIdx = 1;
+//
+//    uint16_t videoRamAddr = ( patternIdx << 4 ) | ( uint16_t )( PPU_CHR1_ROM_BASE_ADDR * ( uint16_t )m_PpuRegisters.C1.BgChrBaseAddr ) | ( uint16_t )m_CurrVideoRamAddr.FineScrollY;
+//
+//    m_BgHighTile.value >>= 8;
+//    m_BgLowTile.value  >>= 8;
+//       
+//    m_BgLowTile.HidhPart  =  fp_BusReadCallBack( m_pContext, videoRamAddr );
+//    m_BgHighTile.HidhPart =  fp_BusReadCallBack( m_pContext, videoRamAddr + PPU_PATTERN_SIZE );
+//           
+//}
+
+void Ppu_t::VideoRamBgFetch( void )
 {
-    uint16_t videoRamAddr = PPU_SCREEN_PAGE1_BASE_ADDR | ( m_CurrVideoRamAddr.value & 0x0FFF );    
-    uint8_t symbolIdx     = fp_BusReadCallBack( m_pContext, videoRamAddr );
+    uint16_t nameTableTileAddr = PPU_SCREEN_PAGE1_BASE_ADDR | ( m_CurrVideoRamAddr.value & 0x0FFF );    
+    uint8_t patternIdx     = fp_BusReadCallBack( m_pContext, nameTableTileAddr );
 
-    m_FoneHighTile.value >>= 8;
-    m_FoneLowTile.value  >>= 8;
-    m_SymbolItemByte.value >>= 8;  
-        
-    videoRamAddr = PPU_SCREEN_PAGE1_BASE_ADDR + PPU_SCREEN_PAGE_SYMBOLS_AREA_SIZE;
-    videoRamAddr |= ( m_CurrVideoRamAddr.value & 0x0C00) | ( ( m_CurrVideoRamAddr.value >> 4 ) & 0x38 ) | ( ( m_CurrVideoRamAddr.value >> 2 ) & 0x07);
+
+    uint16_t attributeAddr = ( PPU_SCREEN_PAGE1_BASE_ADDR + PPU_SCREEN_PAGE_SYMBOLS_AREA_SIZE ) | ( m_CurrVideoRamAddr.value & 0x0C00) | ( ( m_CurrVideoRamAddr.value >> 4 ) & 0x38 ) | ( ( m_CurrVideoRamAddr.value >> 2 ) & 0x07);
+                
+    m_SymbolItemByte.value >>= 8; 
+    m_SymbolItemByte.HidhPart = fp_BusReadCallBack( m_pContext, attributeAddr );   
             
-    m_SymbolItemByte.HidhPart = fp_BusReadCallBack( m_pContext, videoRamAddr );   
-            
-    //symbolIdx = 1;
+    uint16_t videoRamAddr = ( patternIdx << 4 ) | ( uint16_t )( PPU_CHR1_ROM_BASE_ADDR * ( uint16_t )m_PpuRegisters.C1.BgChrBaseAddr ) | ( uint16_t )m_CurrVideoRamAddr.FineScrollY;
 
-    videoRamAddr = ( symbolIdx << 4 ) + ( uint16_t )( PPU_CHR1_ROM_BASE_ADDR * ( uint16_t )m_PpuRegisters.C1.FoneChrBaseAddr ) | ( uint16_t )m_CurrVideoRamAddr.FineScrollY;
-
-    m_FoneLowTile.HidhPart  =  fp_BusReadCallBack( m_pContext, videoRamAddr );
-    m_FoneHighTile.HidhPart =  fp_BusReadCallBack( m_pContext, videoRamAddr + 8 );
+  
+    m_BgHighTile.value >>= 8;
+    m_BgLowTile.value  >>= 8;
+  
+    
+    m_BgLowTile.HidhPart  =  fp_BusReadCallBack( m_pContext, videoRamAddr );
+    m_BgHighTile.HidhPart =  fp_BusReadCallBack( m_pContext, videoRamAddr + 8 );
            
 }
 
@@ -490,7 +499,7 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
         }
         else if( m_LineCounter == 261 )
         {
-            if( m_PpuRegisters.C2.FoneVisibleEnable )
+            if( m_PpuRegisters.C2.BgVisibleEnable )
             {
                 RunPreRenderLine();
             }
@@ -514,9 +523,9 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
 
 void Ppu_t::RunVisibleScanLine( void )
 {
-    if( m_PpuRegisters.C2.FoneVisibleEnable )
+    if( m_PpuRegisters.C2.BgVisibleEnable )
     {
-        FoneRun();
+        BgRun();
     }
 
     if( m_PpuRegisters.C2.SpritesVisibleEnable )
@@ -543,16 +552,16 @@ void Ppu_t::RunVisibleScanLine( void )
         {
             if( ( xVisible >= m_PrimaryOam[0].xPos ) && ( xVisible <= ( m_PrimaryOam[0].xPos + 8 ) ) )
             {
-                if( ( m_FoneScanLine[xVisible] ) && ( m_SpriteScanLine[xVisible] ) )
+                if( ( m_BgScanLine[xVisible] ) && ( m_SpriteScanLine[xVisible] ) )
                 {
                     m_PpuRegisters.SR.ZeroSpriteDetected = SET_BIT;
                 }
             }
         }
 
-        uint8_t pixelColor = m_PaletteFone[0];
+        uint8_t pixelColor = m_PaletteBg[0];
         uint8_t spriteColor =  m_SpriteScanLine[ xVisible ] & 0x0F;
-        uint8_t backGround = m_FoneScanLine [ xVisible ];
+        uint8_t backGround = m_BgScanLine [ xVisible ];
 
         if( 0 !=  m_SpriteScanLine[ xVisible ] ) 
         {
@@ -561,7 +570,7 @@ void Ppu_t::RunVisibleScanLine( void )
 
         if( backGround ) 
         {
-            pixelColor = m_PaletteFone[ backGround ];
+            pixelColor = m_PaletteBg[ backGround ];
         }
      
         if ( m_SpriteScanLine[ xVisible ] & PPU_SPRITE_PRIORITY_BIT )
@@ -569,7 +578,7 @@ void Ppu_t::RunVisibleScanLine( void )
             pixelColor = m_PaletteSprites[ spriteColor ];
         }
 
-        m_FoneScanLine [ xVisible ] = 0;
+        m_BgScanLine [ xVisible ] = 0;
         m_SpriteScanLine[ xVisible ] = 0;
         m_ScanLine[ xVisible ] = pixelColor;
             
@@ -583,13 +592,13 @@ void Ppu_t::RunPreRenderLine( void )
      uint16_t xPos =  m_PpuCycles % 341;
      //for( uint16_t xPos = m_LineCycles; xPos < ( m_LineCycles + m_CyclesToExecute ); xPos++ ) 
      {
-       // if( m_PpuRegisters.C2.FoneVisibleRegion || ( xPos > 8 ) )
+       // if( m_PpuRegisters.C2.BgVisibleRegion || ( xPos > 8 ) )
         {
             if( ( xPos <= PPU_HORIZONTAL_RESOLUTION ) ) 
             {
                 if( ( 0 == ( xPos % PPU_CYCLES_PER_FETCH_CYCLE ) ) && ( 0 != xPos ) )
                 {
-                    VideoRamFoneFetch();    
+                    VideoRamBgFetch();    
                     VideoRamAddrHorizontalInrement();
                
                     if( PPU_VRAM_ADDR_VERT_INCREMENT_XPOS == xPos )
@@ -608,7 +617,7 @@ void Ppu_t::RunPreRenderLine( void )
             {      
                 if( 0 == ( xPos % PPU_CYCLES_PER_FETCH_CYCLE ) )
                 {
-                    VideoRamFoneFetch();
+                    VideoRamBgFetch();
                     VideoRamAddrHorizontalInrement();
                 }
             }
@@ -628,7 +637,7 @@ void Ppu_t::RunPreRenderLine( void )
      }
 }
 
-void Ppu_t::FoneRun( void ) 
+void Ppu_t::BgRun( void ) 
 {        
     uint16_t xPos =  m_PpuCycles % 341;
 //     for( uint16_t xPos = m_LineCycles; xPos < ( m_LineCycles + m_CyclesToExecute ); xPos++ ) 
@@ -642,7 +651,7 @@ void Ppu_t::FoneRun( void )
             
             
              
-            if( m_PpuRegisters.C2.FoneVisibleRegion || ( xPos > 8 ) )
+            if( m_PpuRegisters.C2.BgVisibleRegion || ( xPos > 8 ) )
             {
                 uint8_t symbolLineOffset = 7 - m_Pixel;
                 uint8_t fonePixelColor  = ( regL >> symbolLineOffset ) & 0x01;
@@ -657,7 +666,7 @@ void Ppu_t::FoneRun( void )
                     uint8_t symbolItemValue = 0x03 & ( regA >> (2 * symbolItemMask) );
                     symbolItemValue <<= 2;
                     fonePixelColor += symbolItemValue;
-                    m_FoneScanLine[ xPos - 1 ] = fonePixelColor;
+                    m_BgScanLine[ xPos - 1 ] = fonePixelColor;
                 }
                 
             }
@@ -668,8 +677,8 @@ void Ppu_t::FoneRun( void )
            if( 0 == ( xPos % PPU_CYCLES_PER_FETCH_CYCLE ) || (m_Pixel == 0) )
             {       
                     
-                regH = m_FoneHighTile.HidhPart;
-                regL = m_FoneLowTile.HidhPart;    
+                regH = m_BgHighTile.HidhPart;
+                regL = m_BgLowTile.HidhPart;    
                 regA = m_SymbolItemByte.HidhPart;  
             }
                       
@@ -677,8 +686,8 @@ void Ppu_t::FoneRun( void )
         }
         else
         {
-                regH = m_FoneHighTile.LowPart;
-                regL = m_FoneLowTile.LowPart;
+                regH = m_BgHighTile.LowPart;
+                regL = m_BgLowTile.LowPart;
                 regA = m_SymbolItemByte.LowPart;
                   
                 if( 327 == xPos )
@@ -696,7 +705,7 @@ void Ppu_t::FoneRun( void )
         {
             if( ( 0 == ( xPos % PPU_CYCLES_PER_FETCH_CYCLE ) ) && ( 0 != xPos ) )
             {
-                VideoRamFoneFetch();    
+                VideoRamBgFetch();    
                 VideoRamAddrHorizontalInrement();
                
                 if( PPU_VRAM_ADDR_VERT_INCREMENT_XPOS == xPos )
@@ -715,7 +724,7 @@ void Ppu_t::FoneRun( void )
         {      
             if( 0 == ( xPos % PPU_CYCLES_PER_FETCH_CYCLE ) )
             {
-                VideoRamFoneFetch();
+                VideoRamBgFetch();
                 VideoRamAddrHorizontalInrement();
             }
         }
@@ -873,7 +882,7 @@ void Ppu_t::SpritesRun( void )
 
                 m_SpriteFifo[m_SpriteIdx].xPos      = spriteInfo.xPos;
                 m_SpriteFifo[m_SpriteIdx].HorMirror = spriteInfo.Item.HorMirror;
-                m_SpriteFifo[m_SpriteIdx].Priority  = spriteInfo.Item.FoneUpperSprite;
+                m_SpriteFifo[m_SpriteIdx].Priority  = spriteInfo.Item.BgUpperSprite;
                 m_SpriteFifo[m_SpriteIdx].Color     = spriteInfo.Item.Color;
                 m_SpriteFifo[m_SpriteIdx].LowTile   = fp_BusReadCallBack( m_pContext, spriteSymbolRamAddr );
                 m_SpriteFifo[m_SpriteIdx].HighTile  = fp_BusReadCallBack( m_pContext, spriteSymbolRamAddr + 8 );

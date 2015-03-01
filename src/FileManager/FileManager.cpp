@@ -165,16 +165,15 @@ int getFileSize(FILE *input)
 
 FileLoaderStatus_t FileManager_t::BrowseAndLoad( void )
 {
-   // FILE* file = fopen("Battle_City.nes","rb");
     FileLoaderStatus_t status = FILE_NOT_FOUND_STATUS;
     
-    FILE* file = fopen("../../../../Contra_(U)_[!].nes","rb");
-    //FILE* file = fopen("../../../../Super Mario Bros. (JU).nes","rb");
-    //FILE* file = fopen("../../../../Battletoads_(U).nes","rb");
-   // FILE* file = fopen("../../../../BattletoadsDD.nes","rb");
-   // FILE* file = fopen("../../../../Castlevania.nes","rb");
-   // FILE* file = fopen("../../../../Super C.nes","rb");
     
+    const char* pGameFilePath = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/BalloonFight.nes";
+    //const char* pGameFilePath = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/Super_Mario_Bros._(E).nes";
+    //const char* pGameFilePath = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/SKY_DEST.NES";
+    
+    
+    FILE* file = fopen( pGameFilePath, "rb" );
     
     
     if( 0 < file )
