@@ -98,7 +98,7 @@ struct SpriteItems_t
 {
     uint8_t Color               : 2;
     uint8_t                     : 3;
-    uint8_t FoneUpperSprite     : 1;
+    uint8_t BgUpperSprite       : 1;
     uint8_t HorMirror           : 1;
     uint8_t VertMirror          : 1;
 };
@@ -202,10 +202,10 @@ private:
     inline void VideoRamAddrVerticalInrement( void );
     inline void VideoRamAddrHorizontalCopy( void );
     inline void VideoRamAddrVerticalCopy( void );
-    inline void VideoRamFoneFetch( void );
+    inline void VideoRamBgFetch( void );
 
 private:
-    inline void FoneRun( void );
+    inline void BgRun( void );
     inline void SpritesRun( void );
     inline void ReflectPalette( uint8_t value );
 
@@ -219,11 +219,11 @@ private:
     uint8_t        m_T     : 5;
 
 private:
-    uint8_t        m_FoneScanLine  [ PPU_HORIZONTAL_RESOLUTION ];        
-    uint8_t        m_PaletteFone   [ PPU_FONE_PALETTE_SIZE ];
+    uint8_t        m_BgScanLine  [ PPU_HORIZONTAL_RESOLUTION ];        
+    uint8_t        m_PaletteBg   [ PPU_FONE_PALETTE_SIZE ];
     uint8_t        m_ScanLine      [ PPU_HORIZONTAL_RESOLUTION ];
-    PpuShiftReg_t  m_FoneLowTile;
-    PpuShiftReg_t  m_FoneHighTile;
+    PpuShiftReg_t  m_BgLowTile;
+    PpuShiftReg_t  m_BgHighTile;
     PpuShiftReg_t  m_SymbolItemByte; 
 
 
