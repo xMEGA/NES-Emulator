@@ -22,3 +22,8 @@
 
 build
 *.sdf
+/projects/Linux/NetBeans/dist/
+build
+
+#other
+private
