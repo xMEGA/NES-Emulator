@@ -10,10 +10,6 @@
 #include <stdint.h>
 #include "IMapper.h"
 
-#define _in_
-#define _out_
-#define _in_out_
-
 /*
  _______  0x8000 - switching ( BANK0 )
 |       |

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="94">
+<configurationDescriptor version="95">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -38,16 +38,15 @@
           <itemPath>../../src/Source/GameConsole/Control/Control.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="Cpu" projectFiles="true">
-          <itemPath>../../src/Source/GameConsole/Cpu/Cpu.h</itemPath>
-          <itemPath>../../src/Source/GameConsole/Cpu/CpuOpCodes.h</itemPath>
-          <itemPath>../../src/Source/GameConsole/Cpu/CpuRegisters.h</itemPath>
+          <itemPath>../../../src/GameConsole/Cpu/Cpu.h</itemPath>
+          <itemPath>../../../src/GameConsole/Cpu/CpuOpCodes.h</itemPath>
+          <itemPath>../../../src/GameConsole/Cpu/CpuRegisters.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f5" displayName="Ppu" projectFiles="true">
           <itemPath>../../src/Source/GameConsole/Ppu/Ppu.h</itemPath>
           <itemPath>../../src/Source/GameConsole/Ppu/PpuPalette.h</itemPath>
           <itemPath>../../src/Source/GameConsole/Ppu/PpuRegisters.h</itemPath>
         </logicalFolder>
-        <itemPath>../../src/Source/GameConsole/GameConsole.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="InputManager" projectFiles="true">
         <itemPath>../../src/Source/InputManager/InputManager.h</itemPath>
@@ -142,16 +141,16 @@
           <incDir>
             <pElem>../../src/Source</pElem>
             <pElem>../../src/Source/GameConsole</pElem>
-            <pElem>../../../thirdparty/SDL2-VC/include</pElem>
+            <pElem>../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2</pElem>
           </incDir>
           <warningLevel>2</warningLevel>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/../../../../build/Linux/Debug/emulator</output>
           <linkerAddLib>
-            <pElem>../../src/ExternalLibs/SDL/lib/../../src/ExternalLibs/SDL/lib</pElem>
+            <pElem>../../../thirdparty/SDL2/build/linux_x86_64/lib64</pElem>
           </linkerAddLib>
-          <commandLine>-lSDL2</commandLine>
+          <commandLine>-lSDL2 -ldl -lpthread</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../src/AudioDac/AudioDac.cpp" ex="false" tool="1" flavor2="0">
@@ -240,14 +239,26 @@
             tool="1"
             flavor2="0">
       </item>
+      <item path="../../../src/GameConsole/Cpu/Cpu.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../../src/GameConsole/Cpu/CpuOpCodes.cpp"
             ex="false"
             tool="1"
             flavor2="0">
       </item>
+      <item path="../../../src/GameConsole/Cpu/CpuOpCodes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="../../../src/GameConsole/Cpu/CpuRegisters.cpp"
             ex="false"
             tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/CpuRegisters.h"
+            ex="false"
+            tool="3"
             flavor2="0">
       </item>
       <item path="../../../src/GameConsole/GameConsole.cpp"
@@ -360,26 +371,6 @@
             flavor2="0">
       </item>
       <item path="../../src/Source/GameConsole/Control/Control.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/Cpu/Cpu.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/Cpu/CpuOpCodes.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/Cpu/CpuRegisters.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/GameConsole.h"
             ex="false"
             tool="3"
             flavor2="0">
@@ -421,7 +412,7 @@
           <incDir>
             <pElem>../../src/Source</pElem>
             <pElem>../../src/Source/GameConsole</pElem>
-            <pElem>../../../thirdparty/SDL2-VC/include</pElem>
+            <pElem>../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2</pElem>
           </incDir>
           <commandLine>-O3 -Wstrict-aliasing</commandLine>
           <warningLevel>2</warningLevel>
@@ -434,7 +425,10 @@
         </asmTool>
         <linkerTool>
           <output>${CND_DISTDIR}/../../../../build/Linux/Release/emulator</output>
-          <commandLine>-lSDL2</commandLine>
+          <linkerAddLib>
+            <pElem>../../../thirdparty/SDL2/build/linux_x86_64/lib64</pElem>
+          </linkerAddLib>
+          <commandLine>-lSDL2 -ldl -lpthread</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../../src/AudioDac/AudioDac.cpp" ex="false" tool="1" flavor2="0">
@@ -523,14 +517,26 @@
             tool="1"
             flavor2="0">
       </item>
+      <item path="../../../src/GameConsole/Cpu/Cpu.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="../../../src/GameConsole/Cpu/CpuOpCodes.cpp"
             ex="false"
             tool="1"
             flavor2="0">
       </item>
+      <item path="../../../src/GameConsole/Cpu/CpuOpCodes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="../../../src/GameConsole/Cpu/CpuRegisters.cpp"
             ex="false"
             tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/GameConsole/Cpu/CpuRegisters.h"
+            ex="false"
+            tool="3"
             flavor2="0">
       </item>
       <item path="../../../src/GameConsole/GameConsole.cpp"
@@ -643,26 +649,6 @@
             flavor2="0">
       </item>
       <item path="../../src/Source/GameConsole/Control/Control.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/Cpu/Cpu.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/Cpu/CpuOpCodes.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/Cpu/CpuRegisters.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="../../src/Source/GameConsole/GameConsole.h"
             ex="false"
             tool="3"
             flavor2="0">

@@ -4,16 +4,12 @@
     06/11/2012
 */
 
-#ifndef _Cpu_h_
-#define _Cpu_h_
+#ifndef _CPU_H_
+#define _CPU_H_
 
 #include <stdint.h>
 #include "CpuOpCodes.h"
 #include "CpuRegisters.h"
-
-#define _in_
-#define _out_
-#define _in_out_
 
 //#define CPU_CONTEXT_SIZE                  8
 
@@ -28,57 +24,62 @@
 typedef void (*CpuBusWriteCallBack_t)   ( void * context, uint16_t busAddr, uint8_t busData );
 typedef uint8_t (*CpuBusReadCallBack_t) ( void * context, uint16_t busAddr );
 
+struct ExecContext_t
+{
+    uint8_t   Mnemonic;
+    uint16_t  OperandValue;
+    uint16_t  OperandAddr;
+    bool      IsAdditionCycleEnable;
+    uint8_t   ExecuteCycles;
+};
+
 class Cpu_t
 {
 public:
     // ------ Initialization ----------
-    void SetBusWriteCallBack( CpuBusWriteCallBack_t busWriteCallBack, void * pContext );
-    void SetBusReadCallBack( CpuBusReadCallBack_t busReadCallBack, void * pContext );
+    void SetBusWriteCallBack( CpuBusWriteCallBack_t busWriteCallBack, void* pContext );
+    void SetBusReadCallBack( CpuBusReadCallBack_t busReadCallBack, void* pContext );
 
     //  ------ For Save Games ---------------
-    void SaveCpuContext( uint8_t* pOutData );
-    void LoadCpuContext( uint8_t* pInData );
-    // --------------------------------------
-
+    void DumpRegisters( uint8_t* pOutRegistersData );
+    void LoadRegisters( const uint8_t* pInRegistersData );
+            
+    uint32_t DumpMemory( uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt );
+    uint32_t LoadToMemory( const uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt );
+  
     // -------- Interrupts ------------
-    void Reset(void);
-    void NonMaskableInterrupt(void);
-    void InterruptRequest(void);
+    void Reset();
+    void NonMaskableInterrupt();
+    void InterruptRequest();
     //---------------------------------
     
-    uint8_t Run();
+    uint8_t ExecuteOneCommand();
 
 private:
     inline void CalcZeroFlag( uint16_t n );
     inline void CalcCarryFlag( uint16_t n );
-    inline void CalcSignFlag( uint16_t n);
+    inline void CalcSignFlag( uint16_t n );
     inline void CalcOverflowFlag( uint16_t execRes, uint16_t  acc, uint16_t  mem );
-    inline void StackPush(uint8_t pushval);
-    inline uint8_t StackPop( void );
-    inline void AddressCalc( void );
-    inline void CommandExecute(void);
+    inline void StackPush( uint8_t pushValue );
+    inline uint8_t StackPop();
+    inline uint8_t CommandDecode( ExecContext_t* pExecContext );
+    inline uint8_t CommandExecute( ExecContext_t* pExecContext );
 
+    
 private:
     CpuBusWriteCallBack_t fp_BusWriteCallBack;
     CpuBusReadCallBack_t  fp_BusReadCallBack;
-
+    void*                 m_Context;  
+    
 private:
-    CpuRegisters_t              m_Registers;
-    uint8_t                     m_Cycles;
-    uint8_t                     m_SaveValue;
-    uint16_t                    m_ExecuteResult;
-    void*                       m_Context;
-    uint16_t                    m_FetchWord;
-    CpuDecodeTable_t            m_CpuDecodeInfo;
-    CpuProgCounterReg_t         m_OperandAddr;
-    uint16_t                    m_OperandValue;
-    bool                        m_OpValReadNeed;
-    bool                        m_AdditionCycleEnable;
-    bool                        m_IsNonMaskableInterrupt;
-    bool                        m_IsInterruptRequest;
-    bool                        m_IsReset;
+    bool m_IsNonMaskableInterrupt;
+    bool m_IsInterruptRequest;
+    bool m_IsReset;
+      
+private:
+    CpuRegisters_t m_Registers;
 };
 
-#endif
+#endif //_CPU_H_
 
 

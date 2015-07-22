@@ -220,18 +220,17 @@ RgbPixel_t* GetPalettePixel( uint8_t color )
 
 uint8_t GetPalettePixel332( uint8_t color )
 {
-	return PpuPalette322[ color ];
+    return PpuPalette322[ color ];
 }
 
 uint32_t GetPalettePixel8888( uint8_t color )
 {
-	uint32_t pixel = *( uint32_t* )&PpuPalette[ color ];
-	return pixel;
+    return PpuPalette[ color ].Value;
 }
 
 uint32_t* GetPalettePixel8888()
 {
-	return ( uint32_t* )PpuPalette;
+    return ( uint32_t* )PpuPalette;
 }
 
 uint8_t* GetPalettePixel332()
@@ -241,5 +240,5 @@ uint8_t* GetPalettePixel332()
 
 uint32_t* GetPalettePixelRGBA()
 {
-	return ( uint32_t* )PpuPaletteRGBA;
+    return ( uint32_t* )PpuPaletteRGBA;
 }

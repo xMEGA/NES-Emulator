@@ -6,7 +6,7 @@
 
 #include "Apu.h"
 
-void Apu_t::SetInterruptRequestCallBack( void (*InterruptRequestCallBack)( _out_ void * pContext ), _in_ void * pContext )
+void Apu_t::SetInterruptRequestCallBack( void (*InterruptRequestCallBack)( void * pContext ), void * pContext )
 {
     m_pContext         = pContext;
     IntRequestCallBack = InterruptRequestCallBack;

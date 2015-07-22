@@ -12,13 +12,13 @@ Cartridge_t::Cartridge_t()
     m_pMapper = 0;
 }
 
-void Cartridge_t::SetInterruptRequestCallBack( InterruptRequestCallBack_t pInterruptRequestCallBack, _in_ void * pContext )
+void Cartridge_t::SetInterruptRequestCallBack( InterruptRequestCallBack_t pInterruptRequestCallBack, void * pContext )
 {
     fp_InterruptRequestCallBack = pInterruptRequestCallBack;
     m_pContext = pContext;
 }
 
-void Cartridge_t::SetRomFileAccesCallBack( RomFileAccesCallBack_t pRomFileAccesCallBack, _in_ void * pContext )
+void Cartridge_t::SetRomFileAccesCallBack( RomFileAccesCallBack_t pRomFileAccesCallBack, void * pContext )
 {
     fp_RomFileAccesCallBack = pRomFileAccesCallBack;
     m_pContext = pContext;
@@ -52,7 +52,7 @@ void Cartridge_t::Reset(void)
     }
 }
 
-uint8_t Cartridge_t::CpuRead( _in_ uint16_t addr )
+uint8_t Cartridge_t::CpuRead( uint16_t addr )
 {
     uint8_t retValue = 0;// = 0; /// !!! JIM II 0x50xx addr
     uint32_t offset;
@@ -72,7 +72,7 @@ uint8_t Cartridge_t::CpuRead( _in_ uint16_t addr )
     return retValue;
 }
 
-void Cartridge_t::CpuWrite( _in_ uint16_t addr, _in_ uint8_t data )
+void Cartridge_t::CpuWrite( uint16_t addr, uint8_t data )
 {
     if( addr >= CARTRIDGE_SWITCHED_ROM_BASE_CPU_ADDR )
     {
@@ -86,13 +86,13 @@ void Cartridge_t::CpuWrite( _in_ uint16_t addr, _in_ uint8_t data )
 }
 
 
-uint8_t Cartridge_t::PpuRead( _in_ uint16_t addr )
+uint8_t Cartridge_t::PpuRead( uint16_t addr )
 {
     uint8_t  retValue;
     uint16_t videoRamAddr;
     uint32_t offset;
        
-    if( addr >= 0x2000 )
+    if( addr >= CARTRIDGE_PPU_VRAM_BASE_ADDR )
     {   
         videoRamAddr = m_pMapper->TranslateVideoRamAddr( addr );               
         retValue = m_CartrigeVideoRam[ videoRamAddr ];
@@ -113,7 +113,7 @@ uint8_t Cartridge_t::PpuRead( _in_ uint16_t addr )
     return retValue;
 }
 
-void Cartridge_t::PpuWrite( _in_ uint16_t addr, _in_ uint8_t data )
+void Cartridge_t::PpuWrite( uint16_t addr, uint8_t data )
 {
     uint16_t videoRamAddr;
     

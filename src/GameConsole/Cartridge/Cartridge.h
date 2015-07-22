@@ -11,10 +11,6 @@
 #include "GameRomAnaliser.h"
 #include "Mappers/IMapper.h"
 
-#define _in_
-#define _out_
-#define _in_out_
-
 /*
 CS is active
 A10 = A11
@@ -114,6 +110,9 @@ PPU (PA13) -> Cartridge -> VRAM (CS)
 
 #define CARTRIDGE_SWITCHED_ROM_BASE_CPU_ADDR        0x8000
 
+#define CARTRIDGE_PPU_VRAM_BASE_ADDR                0x2000
+#define CARTRIDGE_PPU_VRAM_SIZE                     0x1000
+
 //#define CARTRIDGE_SWITCHED_ROM_SIZE                 0x4000
 //#define CARTRIDGE_CHR_RAM_BASE_CPU_ADDR             0x6000
 
@@ -123,18 +122,18 @@ class Cartridge_t
 {
 
     public:
-        void SetInterruptRequestCallBack( InterruptRequestCallBack_t pInterruptRequestCallBack, _in_ void * pContext ); 
-        void SetRomFileAccesCallBack( RomFileAccesCallBack_t pRomFileAccesCallBack, _in_ void * pContext );
+        void SetInterruptRequestCallBack( InterruptRequestCallBack_t pInterruptRequestCallBack, void * pContext ); 
+        void SetRomFileAccesCallBack( RomFileAccesCallBack_t pRomFileAccesCallBack, void * pContext );
         void Reset(void);    
         void IrqCounterDecrement( void );
         
         Cartridge_t();
 
-        uint8_t CpuRead( _in_ uint16_t addr );
-        void CpuWrite( _in_ uint16_t addr, _in_ uint8_t data);
+        uint8_t CpuRead( uint16_t addr );
+        void CpuWrite( uint16_t addr, uint8_t data);
 
-        uint8_t PpuRead( _in_ uint16_t addr );
-        void PpuWrite( _in_ uint16_t addr, _in_ uint8_t data);    
+        uint8_t PpuRead( uint16_t addr );
+        void PpuWrite( uint16_t addr, uint8_t data);    
          
     private:
         GameRomInfo_t               m_GameRomInfo;

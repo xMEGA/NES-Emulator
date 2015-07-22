@@ -9,28 +9,23 @@
 
 #include <stdint.h>
 
-#define _in_
-#define _out_
-#define _in_out_
-
-
 #define CONTROL_LATCH_LINE_BIT      0x01
-#define CONTROL_JOYSTIC_DATA_BIT    0x01
+#define CONTROL_GAMEPAD_DATA_BIT    0x01
 
 
 #define CONTROL_PORTA_ADDR          0x4016
 #define CONTROL_PORTB_ADDR          0x4017
 
-enum JoysticButton_t
+enum GamepadButton_t
 {
-    JOYSTIC_BUTTON_A      = 0x01,
-    JOYSTIC_BUTTON_B      = 0x02,
-    JOYSTIC_BUTTON_SELECT = 0x04,
-    JOYSTIC_BUTTON_START  = 0x08,
-    JOYSTIC_BUTTON_UP     = 0x10,
-    JOYSTIC_BUTTON_DOWN   = 0x20,
-    JOYSTIC_BUTTON_LEFT   = 0x40,
-    JOYSTIC_BUTTON_RIGHT  = 0x80
+    GAMEPAD_BUTTON_A      = 0x01,
+    GAMEPAD_BUTTON_B      = 0x02,
+    GAMEPAD_BUTTON_SELECT = 0x04,
+    GAMEPAD_BUTTON_START  = 0x08,
+    GAMEPAD_BUTTON_UP     = 0x10,
+    GAMEPAD_BUTTON_DOWN   = 0x20,
+    GAMEPAD_BUTTON_LEFT   = 0x40,
+    GAMEPAD_BUTTON_RIGHT  = 0x80
 };
 
 
@@ -38,13 +33,13 @@ class Control_t
 {
 
 public:
-    void SetButtonJoysticA( uint8_t button );
-    void SetButtonJoysticB( uint8_t button );
+    void SetButtonGamepadA( uint8_t button );
+    void SetButtonGamepadB( uint8_t button );
 
 public:
     void Reset(void);
-    uint8_t Read( _in_ uint16_t addr );
-    void Write( _in_ uint16_t addr, _in_ uint8_t data);
+    uint8_t Read( uint16_t addr );
+    void Write( uint16_t addr, uint8_t data);
 
 private:
     uint8_t  m_LatchACounter;

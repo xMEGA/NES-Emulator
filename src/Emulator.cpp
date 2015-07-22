@@ -17,7 +17,7 @@ void Emulator_t::Init()
     m_GameConsole.SetRomFileAccesCallBack( RomFileAcces, this );
     m_GameConsole.SetAudioSamplingRate( AUDIO_DAC_SAMPLING_RATE );
    
-    m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_PAL_RESOLUTION, 2*PPU_HORIZONTAL_RESOLUTION, 2*PPU_VERTICAL_PAL_RESOLUTION, false );
+    m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_PAL_RESOLUTION, 2 * PPU_HORIZONTAL_RESOLUTION, 2 * PPU_VERTICAL_PAL_RESOLUTION, false );
 
     m_Display.Clear();
     m_Display.Flip();
@@ -25,9 +25,10 @@ void Emulator_t::Init()
     m_Display.Flip();
 
     m_AudioDac.SetQueryFrameCallBack( AudioDacQueryFrame, this );
+    m_AudioDac.Init();
 
-    m_InputManager.SetJoystickCallBack( JoysticEvent, this );
-    m_InputManager.SetConsoleControlCallBack( GameConsoleControl, this );
+    m_InputManager.SetGamepadCallBack( GamepadEvent, this );
+    m_InputManager.SetConsoleControlCallBack( GameConsoleControlCallBack, this );
     m_InputManager.Init();
 }
 
@@ -80,58 +81,65 @@ void Emulator_t::ShowFps( uint16_t fps )
 }
 
 
-void Emulator_t::AudioDacQueryFrame( _out_ void* pContext, _out_ int16_t* pData, _in_ uint16_t bytesCnt )
+void Emulator_t::AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t bytesCnt )
 {
-    Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
-    emulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
+    Emulator_t* pEmulator = static_cast<Emulator_t *>(pContext);
+    pEmulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
 }
 
-void Emulator_t::JoysticEvent( _in_ void* pContext, _in_ uint8_t joysticA, _in_ uint8_t joysticB )
+void Emulator_t::GamepadEvent( void* pContext, uint8_t gamepadA, uint8_t gamepadB )
 {
-    Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
-    emulator->m_GameConsole.SetButtonJoysticA( joysticA );
-    emulator->m_GameConsole.SetButtonJoysticB( joysticB );
+    Emulator_t* pEmulator = static_cast<Emulator_t *>(pContext);
+    pEmulator->m_GameConsole.SetButtonGamepadA( gamepadA );
+    pEmulator->m_GameConsole.SetButtonGamepadB( gamepadB );
 }
 
-void Emulator_t::GameConsoleControl( _in_ void* pContext, _in_ ConsoleCommand_t command )
+
+void Emulator_t::GameConsoleControlCallBack( void* pContext, ConsoleCommand_t command )
 {
-    Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
+    Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
+    pEmulator->GameConsoleControl( command );
+}
+
+void Emulator_t::GameConsoleControl( ConsoleCommand_t command )
+{
+    
     uint8_t* pGameContext;
 
     switch( command )
     {
         case GAME_CONSOLE_RESET_CMD:
-             emulator->m_GameConsole.Init();
+             m_GameConsole.Init();
             // m_GameConsole.Reset();
 
         break;
 
         case GAME_CONSOLE_LOAD_GAME_ROM_CMD:
         {
-            emulator->m_GameConsoleStarted = false;
+            m_GameConsoleStarted = false;
 
            // m_RomManager.Unload();
-            emulator->m_RomManager.SetDialogTitle( (char *)" Please Select ROM File " );
-            emulator->m_RomManager.SetDialogFilter( (char *)"ROM images\0*.nes\0" );
-            FileLoaderStatus_t fileStatus = emulator->m_RomManager.BrowseAndLoad(); // Выбор и открытие файла игры
+            m_RomManager.SetDialogTitle( (char *)" Please Select ROM File " );
+            m_RomManager.SetDialogFilter( (char *)"ROM images\0*.nes\0" );
+            FileLoaderStatus_t fileStatus = m_RomManager.BrowseAndLoad(); // Выбор и открытие файла игры
            
             if( FILE_LOADED_SUCCESS_STATUS != fileStatus )
             {
                 break;
             }
             
-            emulator->m_GameConsole.Init();
+            m_GameConsole.Init();
           //  m_GameConsole.Reset();
-            emulator->m_AudioDac.Init();
+            m_AudioDac.Init();
 
-            emulator->m_GameConsoleStarted = true;
+            m_GameConsoleStarted = true;
         }
         break;
 
         case GAME_CONSOLE_SAVE_GAME_CMD:
             
             pGameContext = new uint8_t[ GAME_CONTEXT_SIZE ];
-            emulator->m_GameConsole.SaveGameContext( pGameContext );
+            m_GameConsole.SaveGameContext( pGameContext );
 
         break;
 
@@ -139,13 +147,42 @@ void Emulator_t::GameConsoleControl( _in_ void* pContext, _in_ ConsoleCommand_t 
             
         break;
 
+        case GAME_CONSOLE_SAVE_VRAM_DUMP_CMD:
+        {
+            FILE* pFile = fopen( "VideoRam.dmp", "wb" );
+            
+            if( NULL != pFile )
+            {
+                uint8_t buffer[ CARTRIDGE_PPU_VRAM_SIZE ];
+                m_GameConsole.DumpPpuMemory( buffer, CARTRIDGE_PPU_VRAM_BASE_ADDR, sizeof( buffer ) );
+                fwrite( buffer, sizeof( uint8_t ), sizeof( buffer ), pFile );
+                fclose( pFile );
+            }
+        }
+        break;
+        
+            
+        case GAME_CONSOLE_SAVE_CHR_DUMP_CMD:
+        {
+            FILE* pFile = fopen( "PpuChr.dmp", "wb" );
+            
+            if( NULL != pFile )
+            {
+                uint8_t buffer[ CARTRIDGE_VIDEO_ROM_SIZE ];
+                m_GameConsole.DumpPpuMemory( buffer, CARTRIDGE_VIDEO_ROM_BASE_PPU_ADDR, sizeof( buffer ) );
+                fwrite( buffer, sizeof( uint8_t ), sizeof( buffer ), pFile );
+                fclose( pFile );
+            }
+        }
+        break;
+        
         default:
         
         break;
     }
 }
 
-void Emulator_t::RomFileAcces( _in_ void * pContext, _out_ uint8_t* pData, _in_ uint32_t offset, _in_ uint16_t bytesCnt )
+void Emulator_t::RomFileAcces( void * pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt )
 {
     Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
     uint8_t* pSource = emulator->m_RomManager.GetDataPointer() + offset;
@@ -156,9 +193,9 @@ void Emulator_t::RomFileAcces( _in_ void * pContext, _out_ uint8_t* pData, _in_ 
     }
 }
 
-void Emulator_t::PresentFrame( _in_ void * pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame )
+void Emulator_t::PresentFrame( void * pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame )
 {    
-    Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
+    Emulator_t* pEmulator = static_cast<Emulator_t *>(pContext);
 
 
 #ifdef DISPLAY_332
@@ -182,19 +219,19 @@ void Emulator_t::PresentFrame( _in_ void * pContext, uint8_t* pData, uint16_t le
 
 #else
 
-    static uint32_t* pPixel = ( uint32_t* )emulator->m_Display.GetFrameBuffer();
+    static uint32_t* pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer();
     static uint32_t* pPalette = GetPalettePixelRGBA();
-    static uint32_t  displayAlign = emulator->m_Display.GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
+    static uint32_t  displayAlign = pEmulator->m_Display.GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
 
     if( 0 == posInFrame )
     {
-          emulator->m_Display.Flip();
-          pPixel = ( uint32_t* )emulator->m_Display.GetFrameBuffer();
+        pEmulator->m_Display.Flip();
+        pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer();
     }
     
     for( uint16_t xVisible = 0; xVisible < PPU_HORIZONTAL_RESOLUTION; xVisible++ ) 
     {
-          *pPixel ++= pPalette[ *pData++ ];
+        *pPixel ++= pPalette[ *pData++ ];
     }
 
     pPixel += displayAlign;

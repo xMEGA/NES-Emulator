@@ -14,11 +14,6 @@
 #include "Control/Control.h"
 #include "Apu/Apu.h"
 
-
-#define _in_
-#define _out_
-#define _in_out_
-
 #define GAME_CONTEXT_SIZE           10000
 
 #define DMA_REG_CPU_ADDR            0x4014
@@ -35,6 +30,12 @@
 
 
 //#define INTERNAL_RAM_BASE_CPU_ADDR  0x0000
+
+
+
+
+
+
 #define USECOND_IN_SECOND          1000000
 #define NTSC_FPS				   60
 #define ONE_FRAME_TIME             USECOND_IN_SECOND / NTSC_FPS
@@ -42,11 +43,8 @@
 
 #define INTERNAL_RAM_SIZE           0x0800
 
-typedef void (*PresentFrameCallBack_t)     ( _out_ void * context, uint8_t* pData, uint16_t len, uint16_t posInFrame );
-typedef void (*RomFileAccesCallBack_t)     ( _out_ void * context, _out_ uint8_t* pData, _in_ uint32_t offset, _in_ uint16_t bytesCnt );
-
-
-      
+typedef void ( *PresentFrameCallBack_t )     ( void * context, uint8_t* pData, uint16_t len, uint16_t posInFrame );
+typedef void ( *RomFileAccesCallBack_t )     ( void * context, uint8_t* pData, uint32_t offset, uint16_t bytesCnt );
 
 class GameConsole_t
 {
@@ -55,7 +53,7 @@ public:
     void SetPresentFrameCallBack( PresentFrameCallBack_t presentFrameCallBack, void * pContext );
     void SetRomFileAccesCallBack( RomFileAccesCallBack_t romFileAccesCallBack, void * pContext );
         
-    void Init(void);
+    void Init();
     void SetAudioSamplingRate( uint32_t samplingRate );
     
     //  ------ For Save Games ---------------
@@ -64,23 +62,26 @@ public:
     // --------------------------------------
 
     void Run( uint32_t sysTick );
-    void SetButtonJoysticA( uint8_t button );
-    void SetButtonJoysticB( uint8_t button );   
+    void SetButtonGamepadA( uint8_t button );
+    void SetButtonGamepadB( uint8_t button );   
     void GetAudioFrame( int16_t* pData, uint16_t len );
-    uint16_t GetFramesPerSecond( void );
+    uint16_t GetFramesPerSecond();
     
-
+    void DumpPpuMemory( uint8_t* pDestBuffer, uint16_t startAddr, uint16_t size );
+    void DumpCpuMemory( uint8_t* pDestBuffer, uint16_t startAddr, uint16_t size );
+    void DumpCpuRegisters( uint8_t* pOutRegistersData );
+    
 private:
-    static void    CpuBusWrite( _out_ void* pContext, uint16_t busAddr, uint8_t busData );
-    static uint8_t CpuBusRead ( _out_ void* pContext, uint16_t busAddr );
-    static void    PpuBusWrite( _out_ void* pContext, uint16_t busAddr, uint8_t busData );
-    static uint8_t PpuBusRead ( _out_ void* pContext, uint16_t busAddr );
+    static void    CpuBusWrite( void* pContext, uint16_t busAddr, uint8_t busData );
+    static uint8_t CpuBusRead ( void* pContext, uint16_t busAddr );
+    static void    PpuBusWrite( void* pContext, uint16_t busAddr, uint8_t busData );
+    static uint8_t PpuBusRead ( void* pContext, uint16_t busAddr );
 
-    static void    VsyncSignal( _out_ void* pContext );
-    static void    CartridgeInterruptReqest( _out_ void* pContext );
-    static void    ApuInterruptReqest( _out_ void* pContext );
+    static void    VsyncSignal( void* pContext );
+    static void    CartridgeInterruptReqest( void* pContext );
+    static void    ApuInterruptReqest( void* pContext );
 
-    static void    CartridgeIrqCallBack( _out_ void* pContext );
+    static void    CartridgeIrqCallBack( void* pContext );
 
 
 private:
@@ -92,13 +93,11 @@ private:
     uint8_t        m_Ram[ INTERNAL_RAM_SIZE ];        
 
 private:
-    //int32_t  m_CpuCount;
     uint32_t       m_LastSysTick;
     uint16_t       m_FramesPerSecond;
     uint16_t       m_FramesCnt;
     uint32_t       m_FramesLastSysTick;
     uint16_t       m_CpuCycles;
-//    bool           m_FrameExecuted;
 
 private:
     PresentFrameCallBack_t fp_PresentFrameCallBack;

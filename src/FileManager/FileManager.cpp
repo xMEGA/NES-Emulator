@@ -150,7 +150,7 @@ void FileManager_t::SetDialogFilter( char* pTitle )
 }
 
 
-int getFileSize(FILE *input)
+int GetFileSize(FILE *input)
 {
     int fileSizeBytes;
     
@@ -165,29 +165,28 @@ int getFileSize(FILE *input)
 
 FileLoaderStatus_t FileManager_t::BrowseAndLoad( void )
 {
+   // FILE* file = fopen("Battle_City.nes","rb");
     FileLoaderStatus_t status = FILE_NOT_FOUND_STATUS;
     
-    
-    const char* pGameFilePath = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/BalloonFight.nes";
-    //const char* pGameFilePath = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/Super_Mario_Bros._(E).nes";
-    //const char* pGameFilePath = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/SKY_DEST.NES";
-    
-    
-    FILE* file = fopen( pGameFilePath, "rb" );
-    
-    
-    if( 0 < file )
+    FILE* pFile = fopen( "Games/BalloonFight.nes", "rb" );
+    //FILE* file = fopen("../../../../Super Mario Bros. (JU).nes","rb");
+    //FILE* file = fopen("../../../../Battletoads_(U).nes","rb");
+   // FILE* file = fopen("../../../../BattletoadsDD.nes","rb");
+   // FILE* file = fopen("../../../../Castlevania.nes","rb");
+   // FILE* file = fopen("../../../../Super C.nes","rb");
+     
+    if( NULL != pFile )
     {
-        uint32_t fileSize = getFileSize( file );
+        uint32_t fileSize = GetFileSize( pFile );
 
-        if( 0 != m_pDataPointer )
+        if( NULL != m_pDataPointer )
         {
             delete m_pDataPointer;
         }
 
         m_pDataPointer = new uint8_t [fileSize];
 
-        fread( m_pDataPointer, sizeof(uint8_t), fileSize, file );
+        fread( m_pDataPointer, sizeof(uint8_t), fileSize, pFile );
         
         status = FILE_LOADED_SUCCESS_STATUS;
     }
@@ -197,7 +196,6 @@ FileLoaderStatus_t FileManager_t::BrowseAndLoad( void )
 
 FileLoaderStatus_t FileManager_t::Load( char *pPath )
 {
-   
     return FILE_LOADED_SUCCESS_STATUS;
 }
 

@@ -13,23 +13,23 @@ void Control_t::Reset(void)
     m_LatchBCounter = 0;
 }
 
-void Control_t::SetButtonJoysticA( uint8_t button )
+void Control_t::SetButtonGamepadA( uint8_t button )
 {
     m_PortAdata = button;
 }
 
-void Control_t::SetButtonJoysticB( uint8_t button )
+void Control_t::SetButtonGamepadB( uint8_t button )
 {
     m_PortBdata = button;
 }
 
-uint8_t Control_t::Read( _in_ uint16_t addr )
+uint8_t Control_t::Read( uint16_t addr )
 {
     uint8_t retValue = 0;    
     switch( addr )
     {
         case CONTROL_PORTA_ADDR:    
-            retValue = CONTROL_JOYSTIC_DATA_BIT & (m_PortAlatchedData >> m_LatchACounter);
+            retValue = CONTROL_GAMEPAD_DATA_BIT & (m_PortAlatchedData >> m_LatchACounter);
             m_LatchACounter ++;
         break;
 
@@ -48,7 +48,7 @@ uint8_t Control_t::Read( _in_ uint16_t addr )
     return retValue;
 }
 
-void Control_t::Write( _in_ uint16_t addr, _in_ uint8_t data)
+void Control_t::Write( uint16_t addr, uint8_t data)
 {
     
     

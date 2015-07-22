@@ -9,12 +9,17 @@
 
 #include <stdint.h>
 
-struct RgbPixel_t
+union RgbPixel_t
 {
-    uint32_t Red   : 8;
-    uint32_t Green : 8;
-    uint32_t Blue  : 8;
-	uint32_t Alpha : 8;
+    struct
+    {
+        uint32_t Red   : 8;
+        uint32_t Green : 8;
+        uint32_t Blue  : 8;
+        uint32_t Alpha : 8;
+    };
+    
+    uint32_t Value;
 };
 
 extern RgbPixel_t* GetPalettePixel( uint8_t color );

@@ -13,10 +13,6 @@
 #include "TriangleGenerator.h"
 #include "NoiseGenerator.h"
 
-#define _in_
-#define _out_
-#define _in_out_
-
 #define APU_SET_BIT 1
 #define APU_CLR_BIT 0
 
@@ -28,7 +24,7 @@ class Apu_t
 {
 public:
     void Reset(void);
-    void SetInterruptRequestCallBack( void (*InterruptRequestCallBack)( _out_ void * pContext ), _in_ void * pContext );
+    void SetInterruptRequestCallBack( void (*InterruptRequestCallBack)( void* pContext ), void* pContext );
         
     // --- Интерфейс взаимодействия с процессором ---
     uint8_t Read( uint16_t addr );
@@ -60,7 +56,7 @@ private:
 
 private:
     void* m_pContext;
-    void (*IntRequestCallBack)( _out_ void * pContext );
+    void (*IntRequestCallBack)( void * pContext );
 };
 
 #endif

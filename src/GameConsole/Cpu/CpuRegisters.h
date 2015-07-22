@@ -19,6 +19,7 @@
 #define SET_BIT      1
 #define RESET_BIT    0
 
+#define CPU_REGISTER_FILE_SIZE   7 //Bytes
 //#define    CPU_STACK_FENCE_ADDR    0x0100
 
 struct CpuProgCounterReg_t
@@ -59,9 +60,9 @@ struct CpuRegisters_t
     uint8_t                AC;        
     uint8_t                X;
     uint8_t                Y;
-    CpuProgCounterReg_t    PC;
-    CpuStatusReg_t         SR;
     uint8_t                SP;
+    CpuStatusReg_t         SR;
+    CpuProgCounterReg_t    PC;
 };
 
 #endif

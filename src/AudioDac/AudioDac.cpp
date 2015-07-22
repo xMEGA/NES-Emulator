@@ -13,7 +13,6 @@ void AudioDac_t::SetQueryFrameCallBack( QueryFrameCallBack_t qeryFrameCallBack, 
     m_pContext = pContext;
 }
 
-
 void AudioDac_t::Init( void )
 {
     SDL_Init( SDL_INIT_AUDIO );
@@ -34,10 +33,10 @@ void AudioDac_t::Init( void )
 
 void AudioDac_t::RequestFrameCallBack( void *pContext, uint8_t *audioStream, int length )
 {
-    int16_t *stream = reinterpret_cast< int16_t* > ( audioStream);
+    int16_t* pStream = reinterpret_cast< int16_t* > ( audioStream);
     AudioDac_t* pAudioDac = static_cast< AudioDac_t* >( pContext );
 
-    length /= sizeof( int16_t ); // Количество выборок
+    length /= sizeof( int16_t );
     
-    pAudioDac->fp_QueryFrameCallBack( pAudioDac->m_pContext, stream, length);
+    pAudioDac->fp_QueryFrameCallBack( pAudioDac->m_pContext, pStream, length);
 }

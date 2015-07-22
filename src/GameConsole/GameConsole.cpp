@@ -19,6 +19,24 @@ void GameConsole_t::LoadGameContext( uint8_t* pData )
 
 }
 
+void GameConsole_t::DumpPpuMemory( uint8_t* pDestBuffer, uint16_t startAddr, uint16_t size )
+{
+    for( uint16_t addr = startAddr; addr < ( startAddr + size ); addr++ )
+    {
+        *pDestBuffer ++= m_Cartridge.PpuRead( addr );
+    }
+}
+
+void GameConsole_t::DumpCpuMemory( uint8_t* pDestBuffer, uint16_t startAddr, uint16_t size )
+{
+    m_Cpu.DumpMemory( pDestBuffer, startAddr, size );
+}
+
+void GameConsole_t::DumpCpuRegisters( uint8_t* pOutRegistersData )
+{
+    m_Cpu.DumpRegisters( pOutRegistersData );
+}
+
 void GameConsole_t::SetAudioSamplingRate( uint32_t samplingRate )
 {
     m_Apu.SetAudioSamplingRate( samplingRate );
@@ -29,19 +47,19 @@ void GameConsole_t::GetAudioFrame( int16_t* pData, uint16_t len )
     m_Apu.GetAudioFrame( pData, len );
 }
 
-uint16_t GameConsole_t::GetFramesPerSecond( void )
+uint16_t GameConsole_t::GetFramesPerSecond()
 {
     return m_FramesPerSecond;
 }
 
-void GameConsole_t::SetButtonJoysticA(uint8_t button)
+void GameConsole_t::SetButtonGamepadA(uint8_t button)
 {
-    m_Control.SetButtonJoysticA( button );
+    m_Control.SetButtonGamepadA( button );
 }
 
-void GameConsole_t::SetButtonJoysticB(uint8_t button)
+void GameConsole_t::SetButtonGamepadB(uint8_t button)
 {
-    m_Control.SetButtonJoysticB( button );
+    m_Control.SetButtonGamepadB( button );
 }
 
 void GameConsole_t::SetPresentFrameCallBack( PresentFrameCallBack_t presentFrameCallBack, void * pContext )
@@ -57,7 +75,7 @@ void GameConsole_t::SetRomFileAccesCallBack( RomFileAccesCallBack_t romFileAcces
     m_pContext = pContext;
 }
 
-void GameConsole_t::Init(void)
+void GameConsole_t::Init()
 {
     m_Cartridge.SetRomFileAccesCallBack( fp_RomFileAccesCallBack, m_pContext );
     m_Cartridge.SetInterruptRequestCallBack( CartridgeInterruptReqest, m_pContext );
@@ -115,10 +133,10 @@ void GameConsole_t::Run( uint32_t sysTick )
 
         do
         {
-            uint32_t cycles = m_Cpu.Run();
+            uint32_t cycles = m_Cpu.ExecuteOneCommand();
             ppuCycles += m_Ppu.Run( cycles );            
         }
-        while( ( ppuCycles < 89342  ) );
+        while( ppuCycles < 89342 );
         
         m_FramesCnt++;
     }
@@ -127,7 +145,7 @@ void GameConsole_t::Run( uint32_t sysTick )
 
 void GameConsole_t::CpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busData)
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
 
     uint8_t readData = 0;
     
@@ -135,11 +153,11 @@ void GameConsole_t::CpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busD
     if( busAddr < 0x2000 )
     {
         busAddr &= 0x07FF;
-        gameConsole->m_Ram[ busAddr ] = busData;
+        pGameConsole->m_Ram[ busAddr ] = busData;
     }
     else if( busAddr < 0x2008 )
     {
-        gameConsole->m_Ppu.Write(busAddr, busData);
+        pGameConsole->m_Ppu.Write(busAddr, busData);
     }
     else if( busAddr <= 0x4017 )
     {
@@ -148,36 +166,36 @@ void GameConsole_t::CpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busD
         {
             uint16_t intMemAddr = busData << 8;
 
-            gameConsole->m_Ppu.Write( PPU_REG_ADDR_SPRITES_ADDR, 0 );
+            pGameConsole->m_Ppu.Write( PPU_REG_ADDR_SPRITES_ADDR, 0 );
 
             //cpuResCycles -= 2 * 256;
-            gameConsole->m_CpuCycles  += 2 * 256;
+            pGameConsole->m_CpuCycles  += 2 * 256;
 
 
             for( uint16_t i = 0; i != 256; i++ )
             {
-                readData = gameConsole->m_Ram[ intMemAddr ];
-                gameConsole->m_Ppu.Write( PPU_REG_DATA_SPRITES_ADDR, readData );
+                readData = pGameConsole->m_Ram[ intMemAddr ];
+                pGameConsole->m_Ppu.Write( PPU_REG_DATA_SPRITES_ADDR, readData );
                 intMemAddr++;
             }
 
         }
         else
         {
-            gameConsole->m_Apu.Write(busAddr, busData);
-            gameConsole->m_Control.Write(busAddr, busData);
+            pGameConsole->m_Apu.Write(busAddr, busData);
+            pGameConsole->m_Control.Write(busAddr, busData);
         }
 
     }
     else //if( busAddr <= 0xBFFF)
     {
-        gameConsole->m_Cartridge.CpuWrite(busAddr, busData);
+        pGameConsole->m_Cartridge.CpuWrite(busAddr, busData);
     }
 }
 
 uint8_t GameConsole_t::CpuBusRead( void * pContext, uint16_t busAddr )
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
 
     uint8_t readData = 0;
 
@@ -185,25 +203,25 @@ uint8_t GameConsole_t::CpuBusRead( void * pContext, uint16_t busAddr )
     if( busAddr < 0x2000)
     {
         busAddr &= 0x07FF; // CPU RAM mirroring
-        readData = gameConsole->m_Ram[ busAddr ];
+        readData = pGameConsole->m_Ram[ busAddr ];
     }
     else if( busAddr <= 0x2FFA )
     {
 
-        readData = gameConsole->m_Ppu.Read(busAddr);
+        readData = pGameConsole->m_Ppu.Read(busAddr);
     }
     else if( busAddr <= 0x4017 )
     {
-        readData = gameConsole->m_Apu.Read( busAddr );
+        readData = pGameConsole->m_Apu.Read( busAddr );
 
         if( ( busAddr == 0x4016) || ( busAddr == 0x4017) ) 
         {
-            readData = gameConsole->m_Control.Read( busAddr );
+            readData = pGameConsole->m_Control.Read( busAddr );
         }
     }
     else
     {
-        readData = gameConsole->m_Cartridge.CpuRead( busAddr );
+        readData = pGameConsole->m_Cartridge.CpuRead( busAddr );
     }
 
     return readData;
@@ -211,38 +229,38 @@ uint8_t GameConsole_t::CpuBusRead( void * pContext, uint16_t busAddr )
 
 void GameConsole_t::PpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busData)
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
     busAddr &= 0x3FFF;
-    gameConsole->m_Cartridge.PpuWrite( busAddr, busData );
+    pGameConsole->m_Cartridge.PpuWrite( busAddr, busData );
 }
 
 
 uint8_t GameConsole_t::PpuBusRead( void * pContext, uint16_t busAddr )
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
     uint8_t data;
 
     busAddr &= 0x3FFF;//!!!
 
-    data = gameConsole->m_Cartridge.PpuRead( busAddr );
+    data = pGameConsole->m_Cartridge.PpuRead( busAddr );
 
     return data;
 }
 
-void GameConsole_t::CartridgeInterruptReqest( _out_ void * pContext )
+void GameConsole_t::CartridgeInterruptReqest( void * pContext )
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
-    gameConsole->m_Cpu.InterruptRequest();
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
+    pGameConsole->m_Cpu.InterruptRequest();
 }
 
-void GameConsole_t::ApuInterruptReqest( _out_ void * pContext )
+void GameConsole_t::ApuInterruptReqest( void * pContext )
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
-    gameConsole->m_Cpu.InterruptRequest();
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
+    pGameConsole->m_Cpu.InterruptRequest();
 }
 
-void GameConsole_t::VsyncSignal( _out_ void * pContext )
+void GameConsole_t::VsyncSignal( void * pContext )
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
-    gameConsole->m_Cpu.NonMaskableInterrupt();
+    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
+    pGameConsole->m_Cpu.NonMaskableInterrupt();
 }

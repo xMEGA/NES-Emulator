@@ -14,17 +14,17 @@ int main()
 {
     Emulator_t* pEmulator = new Emulator_t;
 
-	if( NULL != pEmulator )
-	{
-		pEmulator->Init();
+    if( NULL != pEmulator )
+    {
+        pEmulator->Init();
 
-		bool isExit = false;
+        bool isExit = false;
 
-		while( false == isExit )
-		{
-			isExit = pEmulator->Run();
-		}
+        while( false == isExit )
+        {
+            isExit = pEmulator->Run();
+        }
 
-		delete pEmulator;
-	}
+        delete pEmulator;
+    }
 }

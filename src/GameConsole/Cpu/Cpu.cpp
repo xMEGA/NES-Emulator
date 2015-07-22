@@ -8,45 +8,65 @@
 #include "CpuRegisters.h"
 #include "CpuOpCodes.h"
 
-void Cpu_t::SaveCpuContext( uint8_t* pOutData )
+void Cpu_t::DumpRegisters( uint8_t* pOutRegistersData )
 {
-    uint8_t* pData = pOutData;
+    uint8_t* pData = pOutRegistersData;
 
-    *pData ++= m_Registers.PC.lowPart;
-    *pData ++= m_Registers.PC.highPart;
     *pData ++= m_Registers.AC;
-    *pData ++= m_Registers.SR.value;
     *pData ++= m_Registers.X;
     *pData ++= m_Registers.Y;
     *pData ++= m_Registers.SP;
+    *pData ++= m_Registers.SR.value;
+    *pData ++= m_Registers.PC.lowPart;
+    *pData ++= m_Registers.PC.highPart;
 }
 
-
-void Cpu_t::LoadCpuContext( uint8_t* pInData )
+void Cpu_t::LoadRegisters( const uint8_t* pInRegistersData )
 {
-    uint8_t* pData = pInData;
+    const uint8_t* pData = pInRegistersData;
 
-    m_Registers.PC.lowPart  = *pData++;
-    m_Registers.PC.highPart = *pData++;
     m_Registers.AC          = *pData++;
-    m_Registers.SR.value    = *pData++;
     m_Registers.X           = *pData++;
     m_Registers.Y           = *pData++;
     m_Registers.SP          = *pData++;
+    m_Registers.SR.value    = *pData++;
+    m_Registers.PC.lowPart  = *pData++;
+    m_Registers.PC.highPart = *pData++;
 }
 
-void Cpu_t::SetBusWriteCallBack( CpuBusWriteCallBack_t busWriteCallBack , void * pContext )
+uint32_t Cpu_t::DumpMemory( uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt )
+{
+    
+    for( uint32_t idx = 0; idx < bytesCnt; idx++ )
+    {
+        pData[ idx ] = fp_BusReadCallBack( m_Context, startAddr + idx ); 
+    }
+    
+    return bytesCnt;
+}
+
+uint32_t Cpu_t::LoadToMemory( const uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt )
+{
+    
+    for( uint32_t idx = 0; idx < bytesCnt; idx++ )
+    {
+        fp_BusWriteCallBack( m_Context, startAddr + idx, pData[ idx ] ); 
+    }
+    
+    return bytesCnt;
+}
+
+void Cpu_t::SetBusWriteCallBack( CpuBusWriteCallBack_t busWriteCallBack, void * pContext )
 {
     m_Context = pContext;
     fp_BusWriteCallBack = busWriteCallBack;
 }
 
-void Cpu_t::SetBusReadCallBack( CpuBusReadCallBack_t busReadCallBack , void * pContext )
+void Cpu_t::SetBusReadCallBack( CpuBusReadCallBack_t busReadCallBack, void * pContext )
 {
     m_Context = pContext;
     fp_BusReadCallBack = busReadCallBack;
 }
-
 
 void Cpu_t::CalcZeroFlag( uint16_t n ) 
 {
@@ -86,146 +106,51 @@ void Cpu_t::StackPush(uint8_t pushval)
     m_Registers.SP --;
 }
 
-uint8_t Cpu_t::StackPop( void ) 
+uint8_t Cpu_t::StackPop() 
 {
     m_Registers.SP ++;
     return fp_BusReadCallBack( m_Context, BASE_STACK_ADDR + m_Registers.SP ); 
 }
 
-void Cpu_t::Reset( void ) 
+void Cpu_t::Reset() 
 {
     m_IsNonMaskableInterrupt = false;
     m_IsInterruptRequest     = false;
     m_IsReset                = true; 
 }
 
-void Cpu_t::NonMaskableInterrupt( void ) 
+void Cpu_t::NonMaskableInterrupt() 
 {
     m_IsNonMaskableInterrupt = true;
 }
 
-void Cpu_t::InterruptRequest( void) 
+void Cpu_t::InterruptRequest() 
 {
     m_IsInterruptRequest = true;
 }
 
-void Cpu_t::AddressCalc( void )
-{
-    uint16_t tempAddr;
-    uint16_t startPageAddr;
-    
-    switch( m_CpuDecodeInfo.addrMode )
-    {
-        case IMM_ADDR_MODE:
-            m_OperandValue  = m_FetchWord;
-            m_OpValReadNeed = false;
-        break;
-
-        case IMPL_ADDR_MODE:
-            m_OpValReadNeed = false;
-        break;
-
-        case ACC_ADDR_MODE:
-            m_OperandValue    = m_Registers.AC;
-            m_OpValReadNeed = false;
-        break;
-        
-        case REL_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord;
-            if (m_OperandAddr.value & 0x80) 
-            {
-                m_OperandAddr.highPart = 0xFF;
-            }
-        break;
-
-        case ZP_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord;
-        break;
-            
-        case ZP_X_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord + m_Registers.X;
-            m_OperandAddr.highPart = 0; //zero-page wraparound
-        break;
-        
-        case ZP_Y_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord + m_Registers.Y; 
-            m_OperandAddr.highPart = 0;    //zero-page wraparound
-        break;
-
-        case ABS_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord;
-        break;
-
-        case ABS_X_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord;
-            startPageAddr = m_OperandAddr.value;
-            m_OperandAddr.value += m_Registers.X;
-            if( ( startPageAddr ^ m_OperandAddr.value ) & 0x100 ) //page-crossing
-            { 
-                m_AdditionCycleEnable = true;
-            }
-        break;
-
-        case ABS_Y_ADDR_MODE:
-            m_OperandAddr.value = m_FetchWord;
-            startPageAddr = m_OperandAddr.value;
-            m_OperandAddr.value += m_Registers.Y; //(target^tmp)&0x100
-            if ( ( m_OperandAddr.value ^ startPageAddr ) & 0x100 ) //page-crossing
-            { 
-                m_AdditionCycleEnable = true;
-            }
-        break;
-            
-        case IND_ADDR_MODE:
-            tempAddr = (m_FetchWord & 0xFF00) | ((m_FetchWord + 1) & 0x00FF); //replicate 6502 page-boundary wraparound bug
-            m_OperandAddr.lowPart  = fp_BusReadCallBack( m_Context, m_FetchWord);
-            m_OperandAddr.highPart = fp_BusReadCallBack( m_Context, tempAddr);
-        break;
-            
-        case IND_X_ADDR_MODE:
-            tempAddr =  (uint16_t)( ( m_FetchWord + (uint16_t)m_Registers.X) & 0xFF); //zero-page wraparound for table pointer
-            m_OperandAddr.lowPart  = fp_BusReadCallBack( m_Context, tempAddr & 0x00FF);
-            m_OperandAddr.highPart = fp_BusReadCallBack( m_Context, (tempAddr+1) & 0x00FF);
-        break;
-            
-        case IND_Y_ADDR_MODE:
-            tempAddr = ( m_FetchWord & 0xFF00) | ((m_FetchWord + 1) & 0x00FF); //zero-page wraparound
-    
-            m_OperandAddr.lowPart  = fp_BusReadCallBack( m_Context,  m_FetchWord );
-            m_OperandAddr.highPart = fp_BusReadCallBack( m_Context,  m_FetchWord + 1 );
-
-            startPageAddr = m_OperandAddr.value;
-            m_OperandAddr.value += m_Registers.Y;
-                  
-            if( ( m_OperandAddr.value ^ startPageAddr ) & 0x100 ) //page-crossing
-            {
-                m_OperandAddr.value&=0xFFFF;
-                m_AdditionCycleEnable = true;
-            }
-
-        break;
-        
-        default:
-        break;
-    }
-}
-
-void Cpu_t::CommandExecute(void)
+uint8_t Cpu_t::CommandExecute( ExecContext_t* pExecContext )
 {
     CpuProgCounterReg_t oldpc;
 
-    switch( m_CpuDecodeInfo.mnemonic )
+    uint8_t saveValue = 0;
+    
+    uint16_t executeResult = 0;
+    
+    uint16_t operandValue = pExecContext->OperandValue;
+    
+    switch( pExecContext->Mnemonic )
     {
     case ADC:
-        m_ExecuteResult = (uint16_t)m_Registers.AC + m_OperandValue + (uint16_t)m_Registers.SR.C;
-        CalcCarryFlag( m_ExecuteResult );
-        CalcZeroFlag( m_ExecuteResult );
-        CalcOverflowFlag( m_ExecuteResult, m_Registers.AC, m_OperandValue );
-        CalcSignFlag( m_ExecuteResult );
+        executeResult = (uint16_t)m_Registers.AC + operandValue + (uint16_t)m_Registers.SR.C;
+        CalcCarryFlag( executeResult );
+        CalcZeroFlag( executeResult );
+        CalcOverflowFlag( executeResult, m_Registers.AC, operandValue );
+        CalcSignFlag( executeResult );
 
-        if( m_AdditionCycleEnable )
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
     
         #ifdef CPU_BCD
@@ -242,186 +167,194 @@ void Cpu_t::CommandExecute(void)
                 a += 0x60;
                 m_Registers.SR.C = SET_BIT;
             }
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
         #endif
    
-        m_Registers.AC = (uint8_t)m_ExecuteResult;
+        m_Registers.AC = (uint8_t)executeResult;
 
     break;
 
 
     case AND:
-        m_OperandValue &= m_Registers.AC;
-        CalcZeroFlag( m_OperandValue );
-        CalcSignFlag( m_OperandValue );
-        m_Registers.AC = (uint8_t)( m_OperandValue & 0x00FF );
-        if( m_AdditionCycleEnable )
+        operandValue &= m_Registers.AC;
+        CalcZeroFlag( operandValue );
+        CalcSignFlag( operandValue );
+        m_Registers.AC = (uint8_t)( operandValue & 0x00FF );
+        
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
     break;
 
     case ASL:
-        m_OperandValue <<= 1;
-        CalcCarryFlag( m_OperandValue );
-        CalcZeroFlag( m_OperandValue );
-        CalcSignFlag( m_OperandValue );
-        m_SaveValue = (uint8_t)m_OperandValue;
+        operandValue <<= 1;
+        CalcCarryFlag( operandValue );
+        CalcZeroFlag( operandValue );
+        CalcSignFlag( operandValue );
+        saveValue = (uint8_t)operandValue;
     break;
 
     case BIT:
-        m_ExecuteResult = (uint16_t)m_Registers.AC & m_OperandValue;
-        CalcZeroFlag( m_ExecuteResult );
-        CalcSignFlag( m_ExecuteResult );
-        m_Registers.SR.value = (m_Registers.SR.value & 0xBF) | (uint8_t)(m_OperandValue & 0xC0);
+        executeResult = (uint16_t)m_Registers.AC & operandValue;
+        CalcZeroFlag( executeResult );
+        CalcSignFlag( executeResult );
+        m_Registers.SR.value = (m_Registers.SR.value & 0xBF) | (uint8_t)(operandValue & 0xC0);
     break;
 
     case CMP:  
-        m_ExecuteResult = (uint16_t)m_Registers.AC - m_OperandValue;
-        if (m_Registers.AC >= (uint8_t)m_OperandValue ) 
+        executeResult = (uint16_t)m_Registers.AC - operandValue;
+        if (m_Registers.AC >= (uint8_t)operandValue ) 
             m_Registers.SR.C = SET_BIT;
         else 
             m_Registers.SR.C =  CLR_BIT;
     
-        if (m_Registers.AC == (uint8_t)m_OperandValue ) 
+        if (m_Registers.AC == (uint8_t)operandValue ) 
             m_Registers.SR.Z= SET_BIT;
         else 
             m_Registers.SR.Z= CLR_BIT;
-        CalcSignFlag( m_ExecuteResult );
-        if( m_AdditionCycleEnable )
+        CalcSignFlag( executeResult );
+        
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
     break;
 
     case CPX:
-        m_ExecuteResult = (uint16_t)m_Registers.X - m_OperandValue;
+        executeResult = (uint16_t)m_Registers.X - operandValue;
    
-        if ( m_Registers.X >= (uint8_t)m_OperandValue ) 
+        if ( m_Registers.X >= (uint8_t)operandValue ) 
             m_Registers.SR.C = SET_BIT;
         else
             m_Registers.SR.C =  CLR_BIT;
-        if ( m_Registers.X == (uint8_t)m_OperandValue ) 
+        if ( m_Registers.X == (uint8_t)operandValue ) 
             m_Registers.SR.Z= SET_BIT;
         else 
             m_Registers.SR.Z= CLR_BIT;
-        CalcSignFlag( m_ExecuteResult );
+        CalcSignFlag( executeResult );
     break;
 
     case CPY: 
-        m_ExecuteResult = (uint16_t)m_Registers.Y - m_OperandValue;
+        executeResult = (uint16_t)m_Registers.Y - operandValue;
    
-        if ( m_Registers.Y >= (uint8_t)m_OperandValue )
+        if ( m_Registers.Y >= (uint8_t)operandValue )
             m_Registers.SR.C = SET_BIT;
         else 
             m_Registers.SR.C =  CLR_BIT;
 
-        if (m_Registers.Y == (uint8_t)m_OperandValue ) 
+        if (m_Registers.Y == (uint8_t)operandValue ) 
             m_Registers.SR.Z= SET_BIT;
         else 
             m_Registers.SR.Z= CLR_BIT;
-        CalcSignFlag( m_ExecuteResult );
+        CalcSignFlag( executeResult );
     break;
 
     case DEC: 
-        m_OperandValue --;
-        CalcZeroFlag( m_OperandValue );
-        CalcSignFlag(m_OperandValue);
-        m_SaveValue = (uint8_t)m_OperandValue;
+        operandValue --;
+        CalcZeroFlag( operandValue );
+        CalcSignFlag(operandValue);
+        saveValue = (uint8_t)operandValue;
     break;
 
     case EOR: 
-        m_ExecuteResult = (uint16_t)m_Registers.AC ^ m_OperandValue;   
-        CalcZeroFlag( m_ExecuteResult );
-        CalcSignFlag( m_ExecuteResult );
-        m_Registers.AC = (uint8_t)m_ExecuteResult;
-        if( m_AdditionCycleEnable )
+        executeResult = (uint16_t)m_Registers.AC ^ operandValue;   
+        CalcZeroFlag( executeResult );
+        CalcSignFlag( executeResult );
+        m_Registers.AC = (uint8_t)executeResult;
+        
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
     break;
 
     case INC: 
-        m_OperandValue ++;
-        CalcZeroFlag( m_OperandValue );
-        CalcSignFlag( m_OperandValue );
-        m_SaveValue = (uint8_t)m_OperandValue;
+        operandValue ++;
+        CalcZeroFlag( operandValue );
+        CalcSignFlag( operandValue );
+        saveValue = (uint8_t)operandValue;
     break;
 
     case LDA:    
-        m_Registers.AC = (uint8_t)m_OperandValue; 
+        m_Registers.AC = (uint8_t)operandValue; 
         CalcZeroFlag( m_Registers.AC );
         CalcSignFlag( m_Registers.AC );
-        if( m_AdditionCycleEnable )
+        
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
     break;
 
     case LDX:   
-        m_Registers.X = (uint8_t)m_OperandValue;
+        m_Registers.X = (uint8_t)operandValue;
         CalcZeroFlag( m_Registers.X );
         CalcSignFlag( m_Registers.X );
        /* if( m_AdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }*/
     break;
 
     case LDY:
-        m_Registers.Y = (uint8_t)m_OperandValue;
+        m_Registers.Y = (uint8_t)operandValue;
         CalcZeroFlag( m_Registers.Y );
         CalcSignFlag( m_Registers.Y );
-        if( m_AdditionCycleEnable )
+        
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
-       break;
+        
+    break;
 
     case LSR: 
-        m_ExecuteResult = m_OperandValue >> 1;
-        if (m_OperandValue & 1) 
+        executeResult = operandValue >> 1;
+        if (operandValue & 1) 
             m_Registers.SR.C = SET_BIT;
         else
             m_Registers.SR.C =  CLR_BIT;
-        CalcZeroFlag( m_ExecuteResult );
-        CalcSignFlag( m_ExecuteResult ); 
-        m_SaveValue = (uint8_t)m_ExecuteResult;
+        CalcZeroFlag( executeResult );
+        CalcSignFlag( executeResult ); 
+        saveValue = (uint8_t)executeResult;
     break;
 
     case ORA:
-        m_ExecuteResult = (uint16_t)m_Registers.AC | m_OperandValue;
-        CalcZeroFlag( m_ExecuteResult );
-        CalcSignFlag( m_ExecuteResult );
-        m_Registers.AC = (uint8_t) m_ExecuteResult;
-        if( m_AdditionCycleEnable )
+        executeResult = (uint16_t)m_Registers.AC | operandValue;
+        CalcZeroFlag( executeResult );
+        CalcSignFlag( executeResult );
+        m_Registers.AC = (uint8_t) executeResult;
+        
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
     break;
 
     case ROL:
-        m_ExecuteResult  = m_OperandValue << 1;
-        m_ExecuteResult |= m_Registers.SR.C;
-        CalcCarryFlag( m_ExecuteResult );
-        CalcZeroFlag( m_ExecuteResult );
-        CalcSignFlag( m_ExecuteResult );
-        m_SaveValue = (uint8_t)m_ExecuteResult;
+        executeResult  = operandValue << 1;
+        executeResult |= m_Registers.SR.C;
+        CalcCarryFlag( executeResult );
+        CalcZeroFlag( executeResult );
+        CalcSignFlag( executeResult );
+        saveValue = (uint8_t)executeResult;
     break;
 
     case BCC:
         if( m_Registers.SR.C == CLR_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
+            
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
             {
-                m_Cycles += 2;
+                pExecContext->ExecuteCycles += 2;
             } 
             else
             {    
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
             }
         }
     break;
@@ -430,14 +363,15 @@ void Cpu_t::CommandExecute(void)
         if( m_Registers.SR.C == SET_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
+            
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
             {
-                m_Cycles += 2; 
+                pExecContext->ExecuteCycles += 2; 
             } 
             else
             {
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
             }
         }
     break;
@@ -446,11 +380,12 @@ void Cpu_t::CommandExecute(void)
         if ( m_Registers.SR.Z == SET_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
+            
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
-                m_Cycles += 2; 
+                pExecContext->ExecuteCycles += 2; 
             else 
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
         }
     break;
 
@@ -458,11 +393,11 @@ void Cpu_t::CommandExecute(void)
         if ( m_Registers.SR.N == SET_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
-                m_Cycles += 2; 
+                pExecContext->ExecuteCycles += 2; 
             else 
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
         }
     break;
 
@@ -470,11 +405,11 @@ void Cpu_t::CommandExecute(void)
         if ( m_Registers.SR.Z == CLR_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
-                m_Cycles += 2; 
+                pExecContext->ExecuteCycles += 2; 
             else 
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
         }
     break;
 
@@ -482,11 +417,11 @@ void Cpu_t::CommandExecute(void)
         if ( m_Registers.SR.N == CLR_BIT )
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
-                m_Cycles += 2;
+                pExecContext->ExecuteCycles += 2;
             else 
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
         }
     break;
 
@@ -505,14 +440,14 @@ void Cpu_t::CommandExecute(void)
         if ( m_Registers.SR.V == CLR_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
             {
-                m_Cycles += 2; 
+                pExecContext->ExecuteCycles += 2; 
             } 
             else
             {
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
             }
         }
     break;
@@ -521,14 +456,15 @@ void Cpu_t::CommandExecute(void)
         if ( m_Registers.SR.V == SET_BIT ) 
         {
             oldpc.value = m_Registers.PC.value;
-            m_Registers.PC.value += m_OperandAddr.value;
+            m_Registers.PC.value += pExecContext->OperandAddr;
+            
             if ( oldpc.highPart != m_Registers.PC.highPart ) //check if jump crossed a page boundary
             {
-                m_Cycles += 2; 
+                pExecContext->ExecuteCycles += 2; 
             } 
             else
             {
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
             }
         }
     break;
@@ -542,7 +478,7 @@ void Cpu_t::CommandExecute(void)
     break;
 
     case CLI: 
-         m_Registers.SR.I = CLR_BIT;
+        m_Registers.SR.I = CLR_BIT;
     break;
 
     case CLV: 
@@ -574,42 +510,42 @@ void Cpu_t::CommandExecute(void)
     break;
 
     case JMP: 
-        m_Registers.PC.value = m_OperandAddr.value;
+        m_Registers.PC.value = pExecContext->OperandAddr;
     break;
 
     case JSR: 
         m_Registers.PC.value--;
         StackPush( m_Registers.PC.highPart );
         StackPush( m_Registers.PC.lowPart );
-        m_Registers.PC.value = m_OperandAddr.value;
+        m_Registers.PC.value = pExecContext->OperandAddr;
     break;
         
     case ROR:
-        m_ExecuteResult = m_OperandValue >> 1;
-        m_ExecuteResult |= m_Registers.SR.C << 7; //!!!
+        executeResult = operandValue >> 1;
+        executeResult |= m_Registers.SR.C << 7; //!!!
    
-        if ( m_OperandValue & 0x01 ) 
+        if ( operandValue & 0x01 ) 
             m_Registers.SR.C = SET_BIT;
         else 
             m_Registers.SR.C = CLR_BIT;
     
-        CalcZeroFlag( m_ExecuteResult );
-        CalcSignFlag( m_ExecuteResult );
-           m_SaveValue = ( uint8_t )m_ExecuteResult;
+        CalcZeroFlag( executeResult );
+        CalcSignFlag( executeResult );
+        saveValue = ( uint8_t )executeResult;
     break;
 
     case SBC:
-        m_OperandValue ^= 0x00FF;
-        m_ExecuteResult = (uint16_t)m_Registers.AC + m_OperandValue + (uint16_t)m_Registers.SR.C;
+        operandValue ^= 0x00FF;
+        executeResult = (uint16_t)m_Registers.AC + operandValue + (uint16_t)m_Registers.SR.C;
    
-        CalcCarryFlag( m_ExecuteResult );
-        CalcZeroFlag( m_ExecuteResult );
-        CalcOverflowFlag( m_ExecuteResult, m_Registers.AC, m_OperandValue );
-        CalcSignFlag( m_ExecuteResult );
+        CalcCarryFlag( executeResult );
+        CalcZeroFlag( executeResult );
+        CalcOverflowFlag( executeResult, m_Registers.AC, operandValue );
+        CalcSignFlag( executeResult );
 
-        if( m_AdditionCycleEnable )
+        if( true == pExecContext->IsAdditionCycleEnable )
         {
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
    
         #ifdef CPU_BCD
@@ -626,11 +562,11 @@ void Cpu_t::CommandExecute(void)
                 m_Registers.SR.C = SET_BIT;
             }
         
-            m_Cycles++;
+            pExecContext->ExecuteCycles++;
         }
         #endif
    
-        m_Registers.AC = (uint8_t)m_ExecuteResult;
+        m_Registers.AC = (uint8_t)executeResult;
     break;
 
     case NOP:
@@ -645,7 +581,7 @@ void Cpu_t::CommandExecute(void)
         case 0xFC:
             if( m_AdditionCycleEnable )
             {
-                m_Cycles++;
+                pExecContext->ExecuteCycles++;
             }
    
             break;
@@ -679,9 +615,9 @@ void Cpu_t::CommandExecute(void)
     break;
 
     case RTS:
-        m_OperandValue = StackPop();
-        m_OperandValue |= StackPop() << 8;
-        m_Registers.PC.value = m_OperandValue + 1;
+        operandValue = StackPop();
+        operandValue |= StackPop() << 8;
+        m_Registers.PC.value = operandValue + 1;
     break;
 
     case SEC: 
@@ -697,15 +633,15 @@ void Cpu_t::CommandExecute(void)
     break;
 
     case STA:
-        m_SaveValue = m_Registers.AC;
+        saveValue = m_Registers.AC;
     break;
 
     case STX:
-        m_SaveValue = m_Registers.X;
+        saveValue = m_Registers.X;
     break;
 
     case STY: 
-        m_SaveValue = m_Registers.Y;
+        saveValue = m_Registers.Y;
     break;
 
     case TAX: 
@@ -758,16 +694,163 @@ void Cpu_t::CommandExecute(void)
     break;
     
     }
+    
+    return saveValue;
 }
 
-uint8_t Cpu_t::Run()
+uint8_t Cpu_t::CommandDecode( ExecContext_t* pExecContext )
 {
-    uint8_t   opcode;
-    uint8_t*  pFetchWord = ( uint8_t * )&m_FetchWord;
+      // m_Registers.SR.Res = SET_BIT;
 
-    m_Cycles = 0;
+    uint8_t opcode    = fp_BusReadCallBack( m_Context, m_Registers.PC.value );
+    m_Registers.PC.value++;
 
-    if( m_IsReset )
+    CpuDecodeTable_t decodeInfo = cpuDecodeTable[ opcode ];
+    
+    pExecContext->ExecuteCycles += ( uint8_t )decodeInfo.opCycles;
+
+    uint16_t fetchWord = 0;
+    
+    uint8_t* pFetchWord = ( uint8_t* )&fetchWord;
+            
+    while( --decodeInfo.opBytes )
+    {
+        *pFetchWord = fp_BusReadCallBack( m_Context, m_Registers.PC.value );
+        m_Registers.PC.value++;
+        pFetchWord ++;
+    }
+
+
+    CpuProgCounterReg_t operandAddr;
+    operandAddr.value = 0;
+        
+    pExecContext->OperandValue = 0;
+    pExecContext->IsAdditionCycleEnable = false;
+
+   
+    switch( decodeInfo.addrMode )
+    {
+        case IMM_ADDR_MODE:
+            pExecContext->OperandValue  = fetchWord;
+            decodeInfo.opRead = false;
+        break;
+
+        case IMPL_ADDR_MODE:
+            decodeInfo.opRead = false;
+        break;
+
+        case ACC_ADDR_MODE:
+            pExecContext->OperandValue    = m_Registers.AC;
+            decodeInfo.opRead = false;
+        break;
+        
+        case REL_ADDR_MODE:
+        {
+            operandAddr.value = fetchWord;
+            if( operandAddr.value & 0x80 ) 
+            {
+                operandAddr.highPart = 0xFF;
+            }
+        }
+        break;
+
+        case ZP_ADDR_MODE:
+            operandAddr.value = fetchWord;
+        break;
+            
+        case ZP_X_ADDR_MODE:
+            operandAddr.value = fetchWord + m_Registers.X;
+            operandAddr.highPart = 0; //zero-page wraparound
+        break;
+        
+        case ZP_Y_ADDR_MODE:
+            operandAddr.value = fetchWord + m_Registers.Y; 
+            operandAddr.highPart = 0;    //zero-page wraparound
+        break;
+
+        case ABS_ADDR_MODE:
+            operandAddr.value = fetchWord;
+        break;
+
+        case ABS_X_ADDR_MODE:
+        {
+            operandAddr.value = fetchWord;
+            uint16_t startPageAddr = operandAddr.value;
+            operandAddr.value += m_Registers.X;
+            if( ( startPageAddr ^ operandAddr.value ) & 0x100 ) //page-crossing
+            { 
+                pExecContext->IsAdditionCycleEnable = true;
+            }
+        }
+        break;
+
+        case ABS_Y_ADDR_MODE:
+        {
+            operandAddr.value = fetchWord;
+            uint16_t startPageAddr = operandAddr.value;
+            operandAddr.value += m_Registers.Y; //(target^tmp)&0x100
+            if ( ( operandAddr.value ^ startPageAddr ) & 0x100 ) //page-crossing
+            { 
+                pExecContext->IsAdditionCycleEnable = true;
+            }
+        }
+        break;
+
+        case IND_ADDR_MODE:
+        {
+            uint16_t tempAddr = (fetchWord & 0xFF00) | ((fetchWord + 1) & 0x00FF); //replicate 6502 page-boundary wraparound bug
+            operandAddr.lowPart  = fp_BusReadCallBack( m_Context, fetchWord);
+            operandAddr.highPart = fp_BusReadCallBack( m_Context, tempAddr);
+        }
+        break;
+            
+        case IND_X_ADDR_MODE:
+        {
+            uint16_t tempAddr =  (uint16_t)( ( fetchWord + (uint16_t)m_Registers.X) & 0xFF); //zero-page wraparound for table pointer
+            operandAddr.lowPart  = fp_BusReadCallBack( m_Context, tempAddr & 0x00FF);
+            operandAddr.highPart = fp_BusReadCallBack( m_Context, (tempAddr+1) & 0x00FF);
+        }
+        break;
+            
+        case IND_Y_ADDR_MODE:
+        {
+            //!!!uint16_t tempAddr = ( fetchWord & 0xFF00) | ((fetchWord + 1) & 0x00FF); //zero-page wraparound
+    
+            operandAddr.lowPart  = fp_BusReadCallBack( m_Context,  fetchWord );
+            operandAddr.highPart = fp_BusReadCallBack( m_Context,  fetchWord + 1 );
+
+            uint16_t startPageAddr = operandAddr.value;
+            operandAddr.value += m_Registers.Y;
+                  
+            if( ( operandAddr.value ^ startPageAddr ) & 0x100 ) //page-crossing
+            {
+                operandAddr.value &= 0xFFFF;
+                pExecContext->IsAdditionCycleEnable = true;
+            }
+        }
+        break;
+        
+        default:
+        break;
+    }
+        
+    if( true == decodeInfo.opRead )
+    {
+        pExecContext->OperandValue = fp_BusReadCallBack( m_Context, operandAddr.value );
+    }
+   
+    pExecContext->Mnemonic      = decodeInfo.mnemonic;
+    pExecContext->OperandAddr   = operandAddr.value;
+    
+    return opcode;
+}
+
+
+uint8_t Cpu_t::ExecuteOneCommand()
+{
+    uint8_t executedCycles = 0;
+
+    if( true == m_IsReset )
     {
         m_Registers.PC.lowPart  = fp_BusReadCallBack( m_Context, BEGIN_PC_LOW_PART_VALUE_BUS_ADDR );
         m_Registers.PC.highPart = fp_BusReadCallBack( m_Context, BEGIN_PC_HIGH_PART_VALUE_BUS_ADDR );
@@ -779,9 +862,9 @@ uint8_t Cpu_t::Run()
         m_Registers.SR.I        = SET_BIT;
         m_IsReset = false;
     }
-    else if( m_IsNonMaskableInterrupt )
+    else if( true == m_IsNonMaskableInterrupt )
     {
-        m_Cycles += 7;
+        executedCycles += 7;
         StackPush(m_Registers.PC.highPart);
         StackPush(m_Registers.PC.lowPart);
         StackPush(m_Registers.SR.value);
@@ -790,59 +873,36 @@ uint8_t Cpu_t::Run()
         m_Registers.PC.highPart = fp_BusReadCallBack( m_Context, 0xFFFB );
         m_IsNonMaskableInterrupt = false;
     }
-    else if( m_IsInterruptRequest )
+    else if( true == m_IsInterruptRequest )
     {
         
-        if ( m_Registers.SR.I != SET_BIT ) 
+        if( SET_BIT != m_Registers.SR.I ) 
         {
-            m_Cycles += 7;
-            StackPush(m_Registers.PC.highPart);
-            StackPush(m_Registers.PC.lowPart);
-            StackPush(m_Registers.SR.value);
+            executedCycles += 7;
+            StackPush( m_Registers.PC.highPart );
+            StackPush( m_Registers.PC.lowPart );
+            StackPush( m_Registers.SR.value );
             m_Registers.SR.I = SET_BIT;
             m_Registers.PC.lowPart  = fp_BusReadCallBack( m_Context, 0xFFFE );
             m_Registers.PC.highPart = fp_BusReadCallBack( m_Context, 0xFFFF );
         }
         m_IsInterruptRequest = false;
     }
-
-    // m_Registers.SR.Res = SET_BIT;
-    m_AdditionCycleEnable = false;
-
-    m_OperandAddr.value = 0;
-    m_OperandValue = 0;
-    m_FetchWord = 0;
-    
-    opcode    = fp_BusReadCallBack( m_Context,  m_Registers.PC.value );
-    m_Registers.PC.value++;
-    m_CpuDecodeInfo = cpuDecodeTable[ opcode ];
-    
-    m_OpValReadNeed = ( bool )m_CpuDecodeInfo.opRead;
-    m_Cycles       += ( uint8_t )m_CpuDecodeInfo.opCycles;
-
-    while( -- m_CpuDecodeInfo.opBytes )
-    {
-        *pFetchWord = fp_BusReadCallBack( m_Context,  m_Registers.PC.value );
-        m_Registers.PC.value++;
-        pFetchWord ++;
-    }
-    
-    AddressCalc();    
-
-    if( m_OpValReadNeed )
-    {
-        m_OperandValue = fp_BusReadCallBack( m_Context,  m_OperandAddr.value );
-    }
-
-    CommandExecute();
+      
+    ExecContext_t execContext = { 0 };
         
-    if( m_CpuDecodeInfo.resWrite )
+    execContext.ExecuteCycles = executedCycles;
+    
+    uint8_t opcode = CommandDecode( &execContext );
+    uint8_t executeResult = CommandExecute( &execContext );
+        
+    if( true == cpuDecodeTable[ opcode ].resWrite )
     {
-        if ( ACC_ADDR_MODE == m_CpuDecodeInfo.addrMode ) 
-            m_Registers.AC = m_SaveValue;
+        if( ACC_ADDR_MODE == cpuDecodeTable[ opcode ].addrMode )
+            m_Registers.AC = executeResult;
         else 
-            fp_BusWriteCallBack( m_Context, m_OperandAddr.value, m_SaveValue);
+            fp_BusWriteCallBack( m_Context, execContext.OperandAddr, executeResult );
     }
 
-     return m_Cycles;
+    return execContext.ExecuteCycles;
 }
