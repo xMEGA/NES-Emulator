@@ -3,17 +3,17 @@
 
 FileManager_t::FileManager_t()
 {
-	m_pDataPointer = NULL;
+    m_pDataPointer = NULL;
 }
 
 FileManager_t::~FileManager_t()
 {
-	Unload();
+    Unload();
 }
 
 FileStatus_t FileManager_t::Load( std::string& filePath )
 {
-	FileStatus_t status = FILE_NOT_FOUND_STATUS;
+    FileStatus_t status = FILE_NOT_FOUND_STATUS;
           
     File_t file;
     

@@ -84,11 +84,11 @@ void Emulator_t::UserControl( ConsoleCommand_t command )
 
            // m_RomManager.Unload();
 			
-			FileOpenDialog_t fileOpenDialog;
+            FileOpenDialog_t fileOpenDialog;
 
-			std::string filePath = fileOpenDialog.Browse( " Please Select ROM File ", "ROM images\0*.nes\0" );
+            std::string filePath = fileOpenDialog.Browse( " Please Select ROM File ", "ROM images\0*.nes\0" );
 
-			FileStatus_t fileStatus = m_RomManager.Load( filePath );
+            FileStatus_t fileStatus = m_RomManager.Load( filePath );
            
             if( FILE_SUCCESS_STATUS != fileStatus )
             {

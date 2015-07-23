@@ -22,13 +22,13 @@ std::string FileOpenDialog_t::Browse( std::string title, std::string filter )
     openFileName.nMaxFile    = MAX_PATH;
     
     
-	std::wstring wstrTitle = std::wstring( title.begin(), title.end() );
+    std::wstring wstrTitle = std::wstring( title.begin(), title.end() );
     //std::wstring wstrFilter = std::wstring( filter.begin(), filter.end() );
 	
     openFileName.nFilterIndex       = 1;
-	openFileName.lpstrTitle         = wstrTitle.c_str();
+    openFileName.lpstrTitle         = wstrTitle.c_str();
     openFileName.lpstrFilter        = L"ROM images\0*.nes\0";
-	openFileName.lpstrInitialDir    = NULL;
+    openFileName.lpstrInitialDir    = NULL;
     openFileName.lpstrCustomFilter  = NULL;
     openFileName.nMaxCustFilter     = 0;
     openFileName.lpstrFileTitle     = NULL;
@@ -49,9 +49,9 @@ std::string FileOpenDialog_t::Browse( std::string title, std::string filter )
     {
     }
 	
-	char filePathBuffer[ 256 ];
-	memset( filePathBuffer, 0, sizeof( filePathBuffer) );
-	wcstombs( filePathBuffer, openFileName.lpstrFile, sizeof( filePathBuffer) );
+    char filePathBuffer[ 256 ];
+    memset( filePathBuffer, 0, sizeof( filePathBuffer) );
+    wcstombs( filePathBuffer, openFileName.lpstrFile, sizeof( filePathBuffer) );
 
     return filePathBuffer;
  }
@@ -61,7 +61,7 @@ std::string FileOpenDialog_t::Browse( std::string title, std::string filter )
 
 std::string FileOpenDialog_t::Browse( std::string title, std::string filter )
 {
-	return "G:\\DEVELOPMENT\\Dendy Tools\\Games\\Super Mario Bros. (JU) [!].nes";
+    return "/home/xmega/Games/Super Mario Bros. (JU) [!].nes";
 }
 
 #endif
