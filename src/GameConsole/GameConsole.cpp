@@ -7,13 +7,17 @@
 #include "GameConsole.h"
 
 
-void GameConsole_t::SaveGameContext( uint8_t* pData )
+uint32_t GameConsole_t::SaveGameContext( uint8_t* pData, uint32_t len  )
 {
-
+    m_Cpu.DumpRegisters( pData );
+    
+    len = 7;
+    
+    return 0;
 }
 
 
-void GameConsole_t::LoadGameContext( uint8_t* pData )
+void GameConsole_t::LoadGameContext( uint8_t* pData, uint32_t len )
 {
 
 
@@ -123,7 +127,7 @@ void GameConsole_t::Run( uint32_t sysTick )
 
     uint32_t deltaTime = sysTick - m_LastSysTick;
 	
-    if ( deltaTime > ONE_FRAME_TIME )
+    //if ( deltaTime > ONE_FRAME_TIME )
     {
         m_LastSysTick = sysTick; 
 

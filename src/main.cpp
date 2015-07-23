@@ -3,7 +3,8 @@
     Created by Igor Belorus
     06/11/2012
 */
-#include  "Emulator.h"
+#include "Emulator.h"
+#include <stddef.h>
 
 #ifdef WIN32
 #include <windows.h>

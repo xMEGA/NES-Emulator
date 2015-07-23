@@ -6,6 +6,7 @@
 
 #include "InputManager.h"
 #include "../GameConsole/Control/Control.h"
+#include "SDL.h"
 
 void InputManager_t::Init(void)
 {
@@ -13,123 +14,159 @@ void InputManager_t::Init(void)
     m_GamepadB = 0;
 }
 
-void InputManager_t::SetGamepadCallBack( GamepadCallBack GamepadCallBack, void* pContext )
+InputManagerInfo_t InputManager_t::Run()
 {
-    m_pGamepadContext  = pContext;
-    m_GamepadCallBack = GamepadCallBack;
-}
+    
+    InputManagerInfo_t inputManagerInfo;
 
-void InputManager_t::SetConsoleControlCallBack( ConsoleControlCallBack_t consoleControlCallBack, void* pContext )
-{
-    m_pConsoleControlContext = pContext;
-    m_ConsoleControlCallBack = consoleControlCallBack;
-}
+    inputManagerInfo.GamePad.IsChanged = false;
+    inputManagerInfo.Window.IsChanged = false;
+    inputManagerInfo.General.IsExit = false;
+    inputManagerInfo.User.IsChanged = false;
+    
+    SDL_Event sdlEvent;
 
-
-void InputManager_t::Run(SDL_Event* SdlEvent)
-{
-    if (SdlEvent->type == SDL_KEYDOWN)
+    while( SDL_PollEvent( &sdlEvent ) )
     {
-        switch( SdlEvent->key.keysym.sym )
+        
+
+        if( sdlEvent.type == SDL_WINDOWEVENT )
         {
-            case SDLK_w:
-                m_GamepadA |= GAMEPAD_BUTTON_UP;
-            break;
-                
-            case SDLK_s:
-                m_GamepadA |= GAMEPAD_BUTTON_DOWN;
-            break;
-    
-            case SDLK_a:
-                m_GamepadA |= GAMEPAD_BUTTON_LEFT;
-            break;
-    
-            case SDLK_d:
-                m_GamepadA |= GAMEPAD_BUTTON_RIGHT;
-            break;
-    
-            case SDLK_m:
-                m_GamepadA |= GAMEPAD_BUTTON_A;
-            break;
+            if( SDL_WINDOWEVENT_RESIZED == sdlEvent.window.event )
+            {
+                inputManagerInfo.Window.SizeX = sdlEvent.window.data1;
+                inputManagerInfo.Window.SizeY = sdlEvent.window.data2;
+                inputManagerInfo.Window.IsChanged = true;
+            }
 
-            case SDLK_n:
-                m_GamepadA |= GAMEPAD_BUTTON_B;
-            break;
+            if( SDL_WINDOWEVENT_CLOSE == sdlEvent.window.event )
+            {
+                inputManagerInfo.General.IsExit = true;
+            }
+        }
+        
+        if (sdlEvent.type == SDL_KEYDOWN)
+        {
+            switch( sdlEvent.key.keysym.sym )
+            {
+                case SDLK_w:
+                    m_GamepadA |= GAMEPAD_BUTTON_UP;
+                break;
 
-            case SDLK_RETURN:
-                m_GamepadA |= GAMEPAD_BUTTON_START;
-            break;
-                    
-            case SDLK_RSHIFT:
-                m_GamepadA |= GAMEPAD_BUTTON_SELECT;
-            break;
+                case SDLK_s:
+                    m_GamepadA |= GAMEPAD_BUTTON_DOWN;
+                break;
 
-            case SDLK_F1:
-                m_ConsoleControlCallBack( m_pConsoleControlContext, GAME_CONSOLE_RESET_CMD );
-            break;
+                case SDLK_a:
+                    m_GamepadA |= GAMEPAD_BUTTON_LEFT;
+                break;
 
-            case SDLK_F5:
-                m_ConsoleControlCallBack( m_pConsoleControlContext, GAME_CONSOLE_LOAD_GAME_ROM_CMD );
-            break;
+                case SDLK_d:
+                    m_GamepadA |= GAMEPAD_BUTTON_RIGHT;
+                break;
 
-            case SDLK_F8:
-                m_ConsoleControlCallBack( m_pConsoleControlContext, GAME_CONSOLE_SAVE_VRAM_DUMP_CMD );        
-            break;  
-            
-            case SDLK_F7:
-                m_ConsoleControlCallBack( m_pConsoleControlContext, GAME_CONSOLE_SAVE_CHR_DUMP_CMD );        
-            break;  
-            
-            default:
-            break;
+                case SDLK_m:
+                    m_GamepadA |= GAMEPAD_BUTTON_A;
+                break;
 
+                case SDLK_n:
+                    m_GamepadA |= GAMEPAD_BUTTON_B;
+                break;
+
+                case SDLK_RETURN:
+                    m_GamepadA |= GAMEPAD_BUTTON_START;
+                break;
+
+                case SDLK_RSHIFT:
+                    m_GamepadA |= GAMEPAD_BUTTON_SELECT;
+                break;
+
+                case SDLK_F1:
+                    inputManagerInfo.User.IsChanged = true;
+                    inputManagerInfo.User.Command = EMULATOR_RESET_CMD;
+                break;
+
+                case SDLK_F5:
+                    inputManagerInfo.User.IsChanged = true;
+                    inputManagerInfo.User.Command = EMULATOR_LOAD_GAME_ROM_CMD;
+                break;
+
+                case SDLK_F8:
+                    inputManagerInfo.User.IsChanged = true;
+                    inputManagerInfo.User.Command = EMULATOR_SAVE_VRAM_DUMP_CMD;
+                break;  
+
+                case SDLK_F7:
+                    inputManagerInfo.User.IsChanged = true;
+                    inputManagerInfo.User.Command = EMULATOR_SAVE_CHR_DUMP_CMD;
+                break;  
+
+                case SDLK_F10:
+                    inputManagerInfo.User.IsChanged = true;
+                    inputManagerInfo.User.Command = EMULATOR_SAVE_GAME_CMD;
+                 break;  
+
+                case SDLK_F11:
+                    inputManagerInfo.User.IsChanged = true;
+                    inputManagerInfo.User.Command = EMULATOR_LOAD_GAME_CMD;
+                break;  
+
+                default:
+                break;
+
+            }
+
+            inputManagerInfo.GamePad.GamepadStateA = m_GamepadA;
+            inputManagerInfo.GamePad.GamepadStateB = m_GamepadB;
+            inputManagerInfo.GamePad.IsChanged = true;
         }
 
-        m_GamepadCallBack( m_pGamepadContext, m_GamepadA, m_GamepadB );
-    
-    }
-
-    if (SdlEvent->type == SDL_KEYUP)
-    {
-        switch( SdlEvent->key.keysym.sym )
+        if( sdlEvent.type == SDL_KEYUP )
         {
-            case SDLK_w:
-                m_GamepadA &= ~GAMEPAD_BUTTON_UP;
-            break;
-                
-            case SDLK_s:
-                m_GamepadA &= ~GAMEPAD_BUTTON_DOWN;
-            break;
-    
-            case SDLK_a:
-                m_GamepadA &= ~GAMEPAD_BUTTON_LEFT;
-            break;
-    
-            case SDLK_d:
-                m_GamepadA &= ~GAMEPAD_BUTTON_RIGHT;
-            break;
-    
-            case SDLK_m:
-                m_GamepadA &= ~GAMEPAD_BUTTON_A;
-            break;
+            switch( sdlEvent.key.keysym.sym )
+            {
+                case SDLK_w:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_UP;
+                break;
 
-            case SDLK_n:
-                m_GamepadA &= ~GAMEPAD_BUTTON_B;
-            break;
+                case SDLK_s:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_DOWN;
+                break;
 
-            case SDLK_RETURN:
-                m_GamepadA &= ~GAMEPAD_BUTTON_START;
-            break;
-                                        
-            case SDLK_RSHIFT:
-                m_GamepadA &= ~GAMEPAD_BUTTON_SELECT;
-            break;
+                case SDLK_a:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_LEFT;
+                break;
 
-            default:break;
+                case SDLK_d:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_RIGHT;
+                break;
 
+                case SDLK_m:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_A;
+                break;
+
+                case SDLK_n:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_B;
+                break;
+
+                case SDLK_RETURN:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_START;
+                break;
+
+                case SDLK_RSHIFT:
+                    m_GamepadA &= ~GAMEPAD_BUTTON_SELECT;
+                break;
+
+                default:break;
+
+            }
+
+            inputManagerInfo.GamePad.GamepadStateA = m_GamepadA;
+            inputManagerInfo.GamePad.GamepadStateB = m_GamepadB;
+            inputManagerInfo.GamePad.IsChanged = true;
         }
-
-         m_GamepadCallBack( m_pGamepadContext, m_GamepadA, m_GamepadB);
-    
+        
     }
+    
+    return inputManagerInfo;
 }

@@ -1,4 +1,6 @@
 #include "FileManager.h"
+#include <string.h>
+#include "File.h"
 
 #ifdef WIN32
 
@@ -16,10 +18,10 @@ void FileManager_t::SetDialogFilter( char* pTitle )
     swprintf( ( wchar_t * )m_DialogFilter, FILE_DIALOG_FILTER_MAX_SIZE, L"%S", pTitle);
 }
 
-FileLoaderStatus_t FileManager_t::BrowseAndLoad( void )
+FileStatus_t FileManager_t::BrowseAndLoad( void )
 {
     OPENFILENAMEW openFileName;
-    FileLoaderStatus_t status = FILE_LOADED_SUCCESS_STATUS;
+    FileStatus_t status = FILE_LOADED_SUCCESS_STATUS;
     uint32_t error;
     TCHAR sfile[MAX_PATH];
     
@@ -68,9 +70,9 @@ FileLoaderStatus_t FileManager_t::BrowseAndLoad( void )
     return status;
  }
 
-FileLoaderStatus_t FileManager_t::Load( char *pPath )
+FileStatus_t FileManager_t::Load( char *pPath )
 {
-    FileLoaderStatus_t  status = FILE_LOADED_SUCCESS_STATUS;
+    FileStatus_t  status = FILE_LOADED_SUCCESS_STATUS;
     HANDLE    m_DataFileHandle;
     uint32_t error;
     LPWSTR openFileName;
@@ -148,7 +150,43 @@ void FileManager_t::SetDialogFilter( char* pTitle )
 {
     
 }
+/*
+FileStatus_t FileManager_t::ResetSaveFile()
+{
+    FileStatus_t status = FILE_NOT_FOUND_STATUS;
 
+    uint32_t gameFileNameSize = strlen( m_pGameFileName ) + sizeof( char );
+    
+    char saveFileName[ gameFileNameSize ];
+    
+    memset( saveFileName, 0, sizeof( saveFileName ) );
+    
+    const char* saveFileExtension = "sav";
+        
+    memcpy( saveFileName, m_pGameFileName, strlen( m_pGameFileName ) );
+    memcpy( &saveFileName[ gameFileNameSize - strlen( saveFileExtension ) - 1 ], saveFileExtension, strlen( saveFileExtension ) );
+    
+    FILE* pFile = fopen( saveFileName, "w" );
+     
+    if( NULL != pFile )
+    {
+        fwrite( "save", sizeof( uint8_t ), 5, pFile );
+        
+        fclose( pFile );
+        
+        status = FILE_SUCCESS_STATUS;
+    }
+    
+    return status;
+}
+
+FileStatus_t FileManager_t::AppendToSaveFile( uint8_t* pDataBuff, uint32_t maxBufferSize )
+{
+    FileStatus_t status = FILE_SUCCESS_STATUS;
+
+    return status;
+}
+ */
 
 int GetFileSize(FILE *input)
 {
@@ -163,40 +201,43 @@ int GetFileSize(FILE *input)
 }
 
 
-FileLoaderStatus_t FileManager_t::BrowseAndLoad( void )
+FileStatus_t FileManager_t::BrowseAndLoad()
 {
-   // FILE* file = fopen("Battle_City.nes","rb");
-    FileLoaderStatus_t status = FILE_NOT_FOUND_STATUS;
+    FileStatus_t status = FILE_NOT_FOUND_STATUS;
+        
+    m_pGameFileName = "/home/xmega/Bitbucket/NES_Hardware/resources/Games/BalloonFight.nes";
+         
+    File_t file;
     
-    FILE* pFile = fopen( "Games/BalloonFight.nes", "rb" );
-    //FILE* file = fopen("../../../../Super Mario Bros. (JU).nes","rb");
-    //FILE* file = fopen("../../../../Battletoads_(U).nes","rb");
-   // FILE* file = fopen("../../../../BattletoadsDD.nes","rb");
-   // FILE* file = fopen("../../../../Castlevania.nes","rb");
-   // FILE* file = fopen("../../../../Super C.nes","rb");
-     
-    if( NULL != pFile )
+    bool isOpened = file.OpenForRead( m_pGameFileName );
+            
+    if( true == isOpened )
     {
-        uint32_t fileSize = GetFileSize( pFile );
-
+        uint32_t fileSize = file.GetSize();
+        
         if( NULL != m_pDataPointer )
         {
             delete m_pDataPointer;
         }
 
-        m_pDataPointer = new uint8_t [fileSize];
-
-        fread( m_pDataPointer, sizeof(uint8_t), fileSize, pFile );
+        m_pDataPointer = new uint8_t [ fileSize ];
         
-        status = FILE_LOADED_SUCCESS_STATUS;
+        if( NULL != m_pDataPointer )
+        {
+            file.Read( m_pDataPointer, fileSize );
+        }
+            
+        file.Close();
+    
+        status = FILE_SUCCESS_STATUS;
     }
     
     return status;
 }
 
-FileLoaderStatus_t FileManager_t::Load( char *pPath )
+FileStatus_t FileManager_t::Load( char *pPath )
 {
-    return FILE_LOADED_SUCCESS_STATUS;
+    return FILE_SUCCESS_STATUS;
 }
 
 uint8_t* FileManager_t::GetDataPointer(void)
@@ -204,6 +245,12 @@ uint8_t* FileManager_t::GetDataPointer(void)
     return m_pDataPointer;
 }
 
+ 
+const char* FileManager_t::GetFilePath()
+{
+    return m_pGameFileName;
+}
+  
 
 void FileManager_t::Unload( void )
 {

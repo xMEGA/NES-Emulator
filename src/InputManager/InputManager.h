@@ -8,36 +8,54 @@
 #define _InputManager_h_
 
 #include <stdint.h>
-#include "SDL.h"
-
 
 enum ConsoleCommand_t
 {
-    GAME_CONSOLE_RESET_CMD         ,
-    GAME_CONSOLE_LOAD_GAME_ROM_CMD ,
-    GAME_CONSOLE_SAVE_GAME_CMD     ,
-    GAME_CONSOLE_LOAD_GAME_CMD     ,
-    GAME_CONSOLE_SAVE_VRAM_DUMP_CMD,
-    GAME_CONSOLE_SAVE_CHR_DUMP_CMD
+    EMULATOR_RESET_CMD         ,
+    EMULATOR_LOAD_GAME_ROM_CMD ,
+    EMULATOR_SAVE_GAME_CMD     ,
+    EMULATOR_LOAD_GAME_CMD     ,
+    EMULATOR_SAVE_VRAM_DUMP_CMD,
+    EMULATOR_SAVE_CHR_DUMP_CMD ,
 };
 
-typedef void (*GamepadCallBack)( void * pContext, uint8_t joystickA,  uint8_t joystickB );
-typedef void (*ConsoleControlCallBack_t)( void * pContext, ConsoleCommand_t command );
+struct InputManagerInfo_t
+{
+    struct
+    {
+        uint8_t GamepadStateA;
+        uint8_t GamepadStateB;
+        bool    IsChanged;
+    }GamePad;
+
+    struct
+    {
+        uint32_t SizeX;
+        uint32_t SizeY;
+        bool     IsChanged;
+    }Window;
+    
+    struct
+    {
+        ConsoleCommand_t Command;
+        bool IsChanged;
+    }User;
+    
+    struct
+    {
+        bool IsExit;
+    }General;
+};
+
 
 class InputManager_t
 {
 public:
     void Init( void );
-    void SetGamepadCallBack( GamepadCallBack joystickCallBack, void * pContext );
-    void SetConsoleControlCallBack( ConsoleControlCallBack_t consoleControlCallBack, void * pContext );
-    void Run( SDL_Event* SdlEvent );
+    InputManagerInfo_t Run();
 
 private:
     uint8_t                     m_GamepadA;
     uint8_t                     m_GamepadB;
-    void*                       m_pGamepadContext;
-    GamepadCallBack             m_GamepadCallBack;
-    void*                       m_pConsoleControlContext;
-    ConsoleControlCallBack_t    m_ConsoleControlCallBack;
 };
 #endif

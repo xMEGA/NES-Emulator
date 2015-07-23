@@ -6,6 +6,7 @@
 
 #include "Emulator.h"
 #include <stdio.h>
+#include "SDL.h"
 
 void Emulator_t::Init()
 {
@@ -27,41 +28,35 @@ void Emulator_t::Init()
     m_AudioDac.SetQueryFrameCallBack( AudioDacQueryFrame, this );
     m_AudioDac.Init();
 
-    m_InputManager.SetGamepadCallBack( GamepadEvent, this );
-    m_InputManager.SetConsoleControlCallBack( GameConsoleControlCallBack, this );
     m_InputManager.Init();
 }
 
 bool Emulator_t::Run()
 {
-    bool isExit = false;
-
-    SDL_Event sdlEvent;
-
-    while( SDL_PollEvent( &sdlEvent ) )
+    InputManagerInfo_t inputManagerInfo = m_InputManager.Run();
+         
+    if( true == inputManagerInfo.User.IsChanged )
     {
-        m_InputManager.Run( &sdlEvent );
-
-        if( sdlEvent.type == SDL_WINDOWEVENT )
-        {
-            if( SDL_WINDOWEVENT_RESIZED == sdlEvent.window.event )
-            {
-                m_Display.WindowResize( sdlEvent.window.data1, sdlEvent.window.data2 );
-            }
-
-            if( SDL_WINDOWEVENT_CLOSE == sdlEvent.window.event )
-            {
-                isExit = true;
-            }
-        }
+        UserControl( inputManagerInfo.User.Command );
     }
-
+    
     if( m_GameConsoleStarted )
     {
         uint64_t perfCounter = SDL_GetPerformanceCounter();
         uint64_t perfFreq = SDL_GetPerformanceFrequency();
 
         uint32_t msec = ( uint32_t )( 1000000 * perfCounter / perfFreq );
+        
+        if( true == inputManagerInfo.Window.IsChanged )
+        {
+            m_Display.WindowResize( inputManagerInfo.Window.SizeX, inputManagerInfo.Window.SizeY );
+        }
+                
+        if( true == inputManagerInfo.GamePad.IsChanged )
+        {
+            m_GameConsole.SetButtonGamepadA( inputManagerInfo.GamePad.GamepadStateA );
+            m_GameConsole.SetButtonGamepadB( inputManagerInfo.GamePad.GamepadStateB );
+        }
         
         m_GameConsole.Run( msec );
 
@@ -70,7 +65,7 @@ bool Emulator_t::Run()
 
     SDL_Delay( 0 );
 
-    return isExit;
+    return inputManagerInfo.General.IsExit;
 }
 
 void Emulator_t::ShowFps( uint16_t fps )
@@ -87,67 +82,63 @@ void Emulator_t::AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t by
     pEmulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
 }
 
-void Emulator_t::GamepadEvent( void* pContext, uint8_t gamepadA, uint8_t gamepadB )
+void Emulator_t::UserControl( ConsoleCommand_t command )
 {
-    Emulator_t* pEmulator = static_cast<Emulator_t *>(pContext);
-    pEmulator->m_GameConsole.SetButtonGamepadA( gamepadA );
-    pEmulator->m_GameConsole.SetButtonGamepadB( gamepadB );
-}
-
-
-void Emulator_t::GameConsoleControlCallBack( void* pContext, ConsoleCommand_t command )
-{
-    Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
-    pEmulator->GameConsoleControl( command );
-}
-
-void Emulator_t::GameConsoleControl( ConsoleCommand_t command )
-{
-    
-    uint8_t* pGameContext;
 
     switch( command )
     {
-        case GAME_CONSOLE_RESET_CMD:
+        case EMULATOR_RESET_CMD:
              m_GameConsole.Init();
-            // m_GameConsole.Reset();
-
         break;
 
-        case GAME_CONSOLE_LOAD_GAME_ROM_CMD:
+        case EMULATOR_LOAD_GAME_ROM_CMD:
         {
             m_GameConsoleStarted = false;
 
            // m_RomManager.Unload();
             m_RomManager.SetDialogTitle( (char *)" Please Select ROM File " );
             m_RomManager.SetDialogFilter( (char *)"ROM images\0*.nes\0" );
-            FileLoaderStatus_t fileStatus = m_RomManager.BrowseAndLoad(); // Выбор и открытие файла игры
+            FileStatus_t fileStatus = m_RomManager.BrowseAndLoad();
            
-            if( FILE_LOADED_SUCCESS_STATUS != fileStatus )
+            if( FILE_SUCCESS_STATUS != fileStatus )
             {
                 break;
             }
             
             m_GameConsole.Init();
-          //  m_GameConsole.Reset();
             m_AudioDac.Init();
-
             m_GameConsoleStarted = true;
         }
         break;
 
-        case GAME_CONSOLE_SAVE_GAME_CMD:
+        case EMULATOR_SAVE_GAME_CMD:
+        {
             
-            pGameContext = new uint8_t[ GAME_CONTEXT_SIZE ];
-            m_GameConsole.SaveGameContext( pGameContext );
-
+//            m_RomManager.ResetSaveFile();
+            
+            uint8_t buffer[ 1024 ];
+               
+            uint32_t len = 0;
+            
+            do
+            {
+                
+                uint32_t len = m_GameConsole.SaveGameContext( buffer, sizeof( buffer ) );
+                
+                if( len > 0 )
+                {
+                    //m_RomManager.AppendToSaveFile( buffer, len );
+                }
+                
+            }while( len > 0 );
+        }
         break;
 
-        case GAME_CONSOLE_LOAD_GAME_CMD:
+        case EMULATOR_LOAD_GAME_CMD:
             
         break;
 
-        case GAME_CONSOLE_SAVE_VRAM_DUMP_CMD:
+        case EMULATOR_SAVE_VRAM_DUMP_CMD:
         {
             FILE* pFile = fopen( "VideoRam.dmp", "wb" );
             
@@ -162,7 +153,7 @@ void Emulator_t::GameConsoleControl( ConsoleCommand_t command )
         break;
         
             
-        case GAME_CONSOLE_SAVE_CHR_DUMP_CMD:
+        case EMULATOR_SAVE_CHR_DUMP_CMD:
         {
             FILE* pFile = fopen( "PpuChr.dmp", "wb" );
             

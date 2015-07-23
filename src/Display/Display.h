@@ -8,7 +8,6 @@
 #define _Display_h_
 
 #include <stdint.h>
-#include "SDL.h"
 
 struct DisplayPixelStruct_t
 {
@@ -17,6 +16,8 @@ struct DisplayPixelStruct_t
     uint32_t Blue  : 8;
     uint32_t Alpha : 8;
 };
+
+struct DisplayContext;
 
 class Display_t
 {
@@ -36,9 +37,7 @@ public:
     ~Display_t();
 
 private:
-    SDL_Window*    m_pWindow;
-    SDL_Texture *  m_Texture;
-    SDL_Renderer * m_Renderer;
+    DisplayContext* m_pDisplayContext;
 
     uint32_t*      m_pFrame[ 2 ];   
     uint16_t       m_WindowSizeX;

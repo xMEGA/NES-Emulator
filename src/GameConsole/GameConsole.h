@@ -14,8 +14,6 @@
 #include "Control/Control.h"
 #include "Apu/Apu.h"
 
-#define GAME_CONTEXT_SIZE           10000
-
 #define DMA_REG_CPU_ADDR            0x4014
 
 
@@ -57,8 +55,8 @@ public:
     void SetAudioSamplingRate( uint32_t samplingRate );
     
     //  ------ For Save Games ---------------
-    void SaveGameContext( uint8_t* pData );
-    void LoadGameContext( uint8_t* pData );
+    uint32_t SaveGameContext( uint8_t* pData, uint32_t len );
+    void LoadGameContext( uint8_t* pData, uint32_t len );
     // --------------------------------------
 
     void Run( uint32_t sysTick );

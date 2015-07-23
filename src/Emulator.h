@@ -22,21 +22,19 @@ public:
 
 private:
     void ShowFps( uint16_t fps );
-    void GameConsoleControl( ConsoleCommand_t command );
+    void UserControl( ConsoleCommand_t command );
     
 private:
     static void RomFileAcces( void * pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt );
     static void PresentFrame( void * pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame );
     static void AudioDacQueryFrame( void * pContext, int16_t* pData, uint16_t bytesCnt );
-    static void GamepadEvent( void * pContext, uint8_t joysticA, uint8_t joysticB );
-    static void GameConsoleControlCallBack( void * pContext, ConsoleCommand_t command );
-
+  
 private:
     FileManager_t     m_RomManager;
     GameConsole_t     m_GameConsole;
     Display_t         m_Display;
     AudioDac_t        m_AudioDac;
     InputManager_t    m_InputManager;
-    bool	          m_GameConsoleStarted;
+    bool	      m_GameConsoleStarted;
 };
 #endif
