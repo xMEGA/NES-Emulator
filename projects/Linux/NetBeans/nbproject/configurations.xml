@@ -11,6 +11,7 @@
         <itemPath>../../src/Source/Display/Display.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="FileManager" projectFiles="true">
+        <itemPath>../../../src/FileManager/File.h</itemPath>
         <itemPath>../../src/Source/FileManager/FileManager.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="GameConsole" projectFiles="true">
@@ -66,6 +67,7 @@
         <itemPath>../../../src/Display/Display.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="FileManager" projectFiles="true">
+        <itemPath>../../../src/FileManager/File.cpp</itemPath>
         <itemPath>../../../src/FileManager/FileManager.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="GameConsole" projectFiles="true">
@@ -158,6 +160,10 @@
       <item path="../../../src/Display/Display.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../../../src/Emulator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/FileManager/File.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/FileManager/File.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../../src/FileManager/FileManager.cpp"
             ex="false"
@@ -436,6 +442,10 @@
       <item path="../../../src/Display/Display.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="../../../src/Emulator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/FileManager/File.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/FileManager/File.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="../../../src/FileManager/FileManager.cpp"
             ex="false"

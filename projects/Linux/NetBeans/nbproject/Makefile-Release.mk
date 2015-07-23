@@ -38,6 +38,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/374577674/AudioDac.o \
 	${OBJECTDIR}/_ext/425842872/Display.o \
 	${OBJECTDIR}/_ext/1386528437/Emulator.o \
+	${OBJECTDIR}/_ext/837277161/File.o \
 	${OBJECTDIR}/_ext/837277161/FileManager.o \
 	${OBJECTDIR}/_ext/404011650/Apu.o \
 	${OBJECTDIR}/_ext/404011650/ApuRegisters.o \
@@ -102,6 +103,11 @@ ${OBJECTDIR}/_ext/1386528437/Emulator.o: ../../../src/Emulator.cpp
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Wall -I../../src/Source -I../../src/Source/GameConsole -I../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1386528437/Emulator.o ../../../src/Emulator.cpp
+
+${OBJECTDIR}/_ext/837277161/File.o: ../../../src/FileManager/File.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/837277161
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Wall -I../../src/Source -I../../src/Source/GameConsole -I../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/837277161/File.o ../../../src/FileManager/File.cpp
 
 ${OBJECTDIR}/_ext/837277161/FileManager.o: ../../../src/FileManager/FileManager.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/837277161
