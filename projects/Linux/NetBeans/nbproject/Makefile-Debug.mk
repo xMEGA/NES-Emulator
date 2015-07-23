@@ -40,6 +40,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/1386528437/Emulator.o \
 	${OBJECTDIR}/_ext/837277161/File.o \
 	${OBJECTDIR}/_ext/837277161/FileManager.o \
+	${OBJECTDIR}/_ext/837277161/FileOpenDialog.o \
 	${OBJECTDIR}/_ext/404011650/Apu.o \
 	${OBJECTDIR}/_ext/404011650/ApuRegisters.o \
 	${OBJECTDIR}/_ext/404011650/NoiseGenerator.o \
@@ -62,6 +63,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/_ext/404026065/PpuPalette.o \
 	${OBJECTDIR}/_ext/404026065/PpuRegisters.o \
 	${OBJECTDIR}/_ext/1514345027/InputManager.o \
+	${OBJECTDIR}/_ext/1669204151/TimeCounter.o \
 	${OBJECTDIR}/_ext/1386528437/main.o
 
 
@@ -113,6 +115,11 @@ ${OBJECTDIR}/_ext/837277161/FileManager.o: ../../../src/FileManager/FileManager.
 	${MKDIR} -p ${OBJECTDIR}/_ext/837277161
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -Wall -I../../src/Source -I../../src/Source/GameConsole -I../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2 -std=c++98 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/837277161/FileManager.o ../../../src/FileManager/FileManager.cpp
+
+${OBJECTDIR}/_ext/837277161/FileOpenDialog.o: ../../../src/FileManager/FileOpenDialog.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/837277161
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Wall -I../../src/Source -I../../src/Source/GameConsole -I../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2 -std=c++98 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/837277161/FileOpenDialog.o ../../../src/FileManager/FileOpenDialog.cpp
 
 ${OBJECTDIR}/_ext/404011650/Apu.o: ../../../src/GameConsole/Apu/Apu.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/404011650
@@ -223,6 +230,11 @@ ${OBJECTDIR}/_ext/1514345027/InputManager.o: ../../../src/InputManager/InputMana
 	${MKDIR} -p ${OBJECTDIR}/_ext/1514345027
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -Wall -I../../src/Source -I../../src/Source/GameConsole -I../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2 -std=c++98 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1514345027/InputManager.o ../../../src/InputManager/InputManager.cpp
+
+${OBJECTDIR}/_ext/1669204151/TimeCounter.o: ../../../src/Utils/TimeCounter.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/1669204151
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Wall -I../../src/Source -I../../src/Source/GameConsole -I../../../thirdparty/SDL2/build/linux_x86_64/include/SDL2 -std=c++98 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1669204151/TimeCounter.o ../../../src/Utils/TimeCounter.cpp
 
 ${OBJECTDIR}/_ext/1386528437/main.o: ../../../src/main.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
