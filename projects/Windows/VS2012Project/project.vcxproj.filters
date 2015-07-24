@@ -46,6 +46,9 @@
     <Filter Include="Source Files\GameConsole\Ppu">
       <UniqueIdentifier>{a33daac7-28e5-4434-906f-371dbcf92c66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{55128ff5-f1cd-4563-85c4-bc12c9bb5e47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\Emulator.cpp">
@@ -129,5 +132,22 @@
     <ClCompile Include="..\..\..\src\GameConsole\GameConsole.cpp">
       <Filter>Source Files\GameConsole</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\FileManager\File.cpp">
+      <Filter>Source Files\FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\FileManager\FileOpenDialog.cpp">
+      <Filter>Source Files\FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Utils\TimeCounter.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\FileManager\FileOpenDialog.h">
+      <Filter>Source Files\FileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\Utils\TimeCounter.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
