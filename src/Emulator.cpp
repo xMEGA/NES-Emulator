@@ -6,12 +6,11 @@
 
 #include "Emulator.h"
 #include <stdio.h>
-#include "SDL.h"
+#include "Utils/TimeCounter.h"
+#include "FileManager/FileOpenDialog.h"
 
 void Emulator_t::Init()
 {
-    SDL_Init( SDL_INIT_TIMER );
-
     m_GameConsoleStarted = false;
 
     m_GameConsole.SetPresentFrameCallBack( PresentFrame, this );
@@ -42,11 +41,7 @@ bool Emulator_t::Run()
     
     if( m_GameConsoleStarted )
     {
-        uint64_t perfCounter = SDL_GetPerformanceCounter();
-        uint64_t perfFreq = SDL_GetPerformanceFrequency();
-
-        uint32_t msec = ( uint32_t )( 1000000 * perfCounter / perfFreq );
-        
+          
         if( true == inputManagerInfo.Window.IsChanged )
         {
             m_Display.WindowResize( inputManagerInfo.Window.SizeX, inputManagerInfo.Window.SizeY );
@@ -58,12 +53,11 @@ bool Emulator_t::Run()
             m_GameConsole.SetButtonGamepadB( inputManagerInfo.GamePad.GamepadStateB );
         }
         
+		uint32_t msec = TimeCounterGetMsec();
         m_GameConsole.Run( msec );
 
         ShowFps( m_GameConsole.GetFramesPerSecond() );
     }
-
-    SDL_Delay( 0 );
 
     return inputManagerInfo.General.IsExit;
 }
@@ -73,13 +67,6 @@ void Emulator_t::ShowFps( uint16_t fps )
     char fpsStr[ 20 ];
     sprintf( fpsStr, "FPS = %d", fps );
     m_Display.SetTitle( fpsStr );
-}
-
-
-void Emulator_t::AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t bytesCnt )
-{
-    Emulator_t* pEmulator = static_cast<Emulator_t *>(pContext);
-    pEmulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
 }
 
 void Emulator_t::UserControl( ConsoleCommand_t command )
@@ -96,9 +83,12 @@ void Emulator_t::UserControl( ConsoleCommand_t command )
             m_GameConsoleStarted = false;
 
            // m_RomManager.Unload();
-            m_RomManager.SetDialogTitle( (char *)" Please Select ROM File " );
-            m_RomManager.SetDialogFilter( (char *)"ROM images\0*.nes\0" );
-            FileStatus_t fileStatus = m_RomManager.BrowseAndLoad();
+			
+			FileOpenDialog_t fileOpenDialog;
+
+			std::string filePath = fileOpenDialog.Browse( " Please Select ROM File ", "ROM images\0*.nes\0" );
+
+			FileStatus_t fileStatus = m_RomManager.Load( filePath );
            
             if( FILE_SUCCESS_STATUS != fileStatus )
             {
@@ -173,9 +163,15 @@ void Emulator_t::UserControl( ConsoleCommand_t command )
     }
 }
 
+void Emulator_t::AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t bytesCnt )
+{
+    Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
+    pEmulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
+}
+
 void Emulator_t::RomFileAcces( void * pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt )
 {
-    Emulator_t* emulator = static_cast<Emulator_t *>(pContext);
+    Emulator_t* emulator = static_cast< Emulator_t* >( pContext );
     uint8_t* pSource = emulator->m_RomManager.GetDataPointer() + offset;
 
     for ( uint16_t i = 0; i != bytesCnt; i++ ) // Подгружаем bytesCnt байт из файла игры в картридж
@@ -186,7 +182,7 @@ void Emulator_t::RomFileAcces( void * pContext, uint8_t* pData, uint32_t offset,
 
 void Emulator_t::PresentFrame( void * pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame )
 {    
-    Emulator_t* pEmulator = static_cast<Emulator_t *>(pContext);
+    Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
 
 
 #ifdef DISPLAY_332

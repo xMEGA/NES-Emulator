@@ -13,7 +13,6 @@
 #include  "InputManager/InputManager.h"
 #include  "AudioDac/AudioDac.h"
 
-
 class Emulator_t
 {
 public:
@@ -25,9 +24,9 @@ private:
     void UserControl( ConsoleCommand_t command );
     
 private:
-    static void RomFileAcces( void * pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt );
-    static void PresentFrame( void * pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame );
-    static void AudioDacQueryFrame( void * pContext, int16_t* pData, uint16_t bytesCnt );
+    static void RomFileAcces( void* pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt );
+    static void PresentFrame( void* pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame );
+    static void AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t bytesCnt );
   
 private:
     FileManager_t     m_RomManager;
@@ -35,6 +34,6 @@ private:
     Display_t         m_Display;
     AudioDac_t        m_AudioDac;
     InputManager_t    m_InputManager;
-    bool	      m_GameConsoleStarted;
+    bool	          m_GameConsoleStarted;
 };
 #endif

@@ -28,4 +28,6 @@ int main()
 
         delete pEmulator;
     }
+
+	return 0;
 }

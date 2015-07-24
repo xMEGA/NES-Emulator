@@ -1,10 +1,6 @@
 #include "File.h"
 #include <stdio.h>
 
-#ifdef WIN32
-
-#else
-
 bool File_t::OpenForWrite( std::string filePath )
 {
     bool status = false;
@@ -75,5 +71,3 @@ size_t File_t::GetSize()
     
     return fileSizeBytes;
 }
-
-#endif
