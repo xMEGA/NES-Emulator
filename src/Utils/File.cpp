@@ -55,8 +55,32 @@ void File_t::Close()
 size_t File_t::Read( uint8_t* pBuffer, size_t maxBufferSize )
 {
     FILE* pFile = static_cast< FILE* >( m_pFile );
-    
+
     return fread( pBuffer, sizeof( uint8_t ), maxBufferSize, pFile );
+}
+
+bool File_t::Write( const uint8_t* pBuffer, size_t bytesCnt )
+{
+    FILE* pFile = static_cast< FILE* >( m_pFile );
+    
+    size_t len = bytesCnt;
+    
+    do
+    {
+        len = fwrite( pBuffer, sizeof( uint8_t ), len, pFile );
+
+        pBuffer += len;
+    
+        bytesCnt -= len;
+
+    }while( bytesCnt > 0 );
+
+    return true;
+}
+
+bool File_t::Write( const char* pBuffer, size_t bytesCnt )
+{
+    return Write( ( uint8_t* )pBuffer, bytesCnt );
 }
 
 size_t File_t::GetSize()

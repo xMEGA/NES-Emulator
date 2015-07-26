@@ -41,8 +41,8 @@ public:
     void SetBusReadCallBack( CpuBusReadCallBack_t busReadCallBack, void* pContext );
 
     //  ------ For Save Games ---------------
-    void DumpRegisters( uint8_t* pOutRegistersData );
-    void LoadRegisters( const uint8_t* pInRegistersData );
+    uint32_t DumpRegisters( uint8_t* pOutRegistersData );
+    uint32_t LoadRegisters( const uint8_t* pInRegistersData );
             
     uint32_t DumpMemory( uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt );
     uint32_t LoadToMemory( const uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt );

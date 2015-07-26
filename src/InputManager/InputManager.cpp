@@ -103,12 +103,12 @@ InputManagerInfo_t InputManager_t::Run()
 
                 case SDLK_F10:
                     inputManagerInfo.User.IsChanged = true;
-                    inputManagerInfo.User.Command = EMULATOR_SAVE_GAME_CMD;
+                    inputManagerInfo.User.Command = EMULATOR_SAVE_GAME_CONTEXT_CMD;
                  break;  
 
                 case SDLK_F11:
                     inputManagerInfo.User.IsChanged = true;
-                    inputManagerInfo.User.Command = EMULATOR_LOAD_GAME_CMD;
+                    inputManagerInfo.User.Command = EMULATOR_LOAD_GAME_CONTEXT_CMD;
                 break;  
 
                 default:

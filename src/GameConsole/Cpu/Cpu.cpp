@@ -8,7 +8,7 @@
 #include "CpuRegisters.h"
 #include "CpuOpCodes.h"
 
-void Cpu_t::DumpRegisters( uint8_t* pOutRegistersData )
+uint32_t Cpu_t::DumpRegisters( uint8_t* pOutRegistersData )
 {
     uint8_t* pData = pOutRegistersData;
 
@@ -19,9 +19,11 @@ void Cpu_t::DumpRegisters( uint8_t* pOutRegistersData )
     *pData ++= m_Registers.SR.value;
     *pData ++= m_Registers.PC.lowPart;
     *pData ++= m_Registers.PC.highPart;
+
+    return pData - pOutRegistersData;
 }
 
-void Cpu_t::LoadRegisters( const uint8_t* pInRegistersData )
+uint32_t Cpu_t::LoadRegisters( const uint8_t* pInRegistersData )
 {
     const uint8_t* pData = pInRegistersData;
 
@@ -32,6 +34,8 @@ void Cpu_t::LoadRegisters( const uint8_t* pInRegistersData )
     m_Registers.SR.value    = *pData++;
     m_Registers.PC.lowPart  = *pData++;
     m_Registers.PC.highPart = *pData++;
+
+    return pData - pInRegistersData;
 }
 
 uint32_t Cpu_t::DumpMemory( uint8_t* pData, uint16_t startAddr, uint32_t bytesCnt )

@@ -1,20 +1,27 @@
-#include "FileManager.h"
+#include "RomFileManager.h"
 #include "File.h"
 
-FileManager_t::FileManager_t()
+RomFileManager_t::RomFileManager_t()
 {
     m_pDataPointer = NULL;
 }
 
-FileManager_t::~FileManager_t()
+RomFileManager_t::~RomFileManager_t()
 {
     Unload();
 }
 
-FileStatus_t FileManager_t::Load( std::string& filePath )
+uint32_t RomFileManager_t::GetRomFileChs()
 {
-    FileStatus_t status = FILE_NOT_FOUND_STATUS;
-          
+    return 0;
+}
+
+bool RomFileManager_t::Load( std::string& filePath )
+{
+    bool status = false;
+    
+    m_pGameFileName = filePath;
+
     File_t file;
     
     bool isOpened = file.OpenForRead( filePath );
@@ -37,23 +44,23 @@ FileStatus_t FileManager_t::Load( std::string& filePath )
             
         file.Close();
     
-        status = FILE_SUCCESS_STATUS;
+        status = true;
     }
     
     return status;
 }
 
-std::string FileManager_t::GetFilePath()
+std::string RomFileManager_t::GetFilePath()
 {
     return m_pGameFileName;
 }
 
-uint8_t* FileManager_t::GetDataPointer()
+uint8_t* RomFileManager_t::GetDataPointer()
 {
     return m_pDataPointer;
 }
 
-void FileManager_t::Unload()
+void RomFileManager_t::Unload()
 {
     if( NULL != m_pDataPointer )
     {

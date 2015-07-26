@@ -59,7 +59,7 @@ public:
     void LoadGameContext( uint8_t* pData, uint32_t len );
     // --------------------------------------
 
-    void Run( uint32_t sysTick );
+    void ProcessingOneFrame( uint32_t sysTick );
     void SetButtonGamepadA( uint8_t button );
     void SetButtonGamepadB( uint8_t button );   
     void GetAudioFrame( int16_t* pData, uint16_t len );

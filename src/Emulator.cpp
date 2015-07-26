@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "Utils/TimeCounter.h"
 #include "FileManager/FileOpenDialog.h"
+#include "Utils/File.h"
 
 void Emulator_t::Init()
 {
@@ -54,7 +55,7 @@ bool Emulator_t::Run()
         }
         
 		uint32_t msec = TimeCounterGetMsec();
-        m_GameConsole.Run( msec );
+        m_GameConsole.ProcessingOneFrame( msec );
 
         ShowFps( m_GameConsole.GetFramesPerSecond() );
     }
@@ -69,6 +70,114 @@ void Emulator_t::ShowFps( uint16_t fps )
     m_Display.SetTitle( fpsStr );
 }
 
+void Emulator_t::SaveGameContext()
+{
+    std::string romFileName = m_RomManager.GetFilePath();
+            
+    romFileName.replace( romFileName.find( "nes" ), 3, "sev" );
+
+    File_t saveFile;
+
+    bool isOpenedSuccess = saveFile.OpenForWrite( romFileName );
+
+    if( true == isOpenedSuccess )
+    {
+        uint32_t len = 0;
+
+        uint8_t* pSaveBuffer = new uint8_t [ SAVE_FILE_MAX_SIZE ];
+
+        if( NULL != pSaveBuffer )
+        {
+            len = m_GameConsole.SaveGameContext( pSaveBuffer, SAVE_FILE_MAX_SIZE );
+                
+            if( len > 0 )
+            {
+                saveFile.Write( pSaveBuffer, len );
+            }
+
+            delete[] pSaveBuffer;
+        }
+
+        saveFile.Close();
+    }
+}
+
+void Emulator_t::LoadGameContext()
+{
+    std::string romFileName = m_RomManager.GetFilePath();
+            
+    romFileName.replace( romFileName.find( "nes" ), 3, "sev" );
+   
+    File_t saveFile;
+
+    bool isOpenedSuccess = saveFile.OpenForRead( romFileName );
+
+    if( true == isOpenedSuccess )
+    {
+        uint32_t size = saveFile.GetSize();
+
+        uint8_t* pSaveFileBuffer = new uint8_t[ size ];
+        
+        if( NULL != pSaveFileBuffer )
+        {
+            size = saveFile.Read( pSaveFileBuffer, size );
+
+            m_GameConsole.LoadGameContext( pSaveFileBuffer, size );
+
+            delete[] pSaveFileBuffer;
+        }
+
+        saveFile.Close();
+    }
+}
+
+void Emulator_t::LoadGameRom()
+{
+    m_GameConsoleStarted = false;
+			
+    FileOpenDialog_t fileOpenDialog;
+
+    std::string filePath = fileOpenDialog.Browse( " Please Select ROM File ", "ROM images\0*.nes\0" );
+
+    bool isLoadedSuccess = m_RomManager.Load( filePath );
+           
+    if( false == isLoadedSuccess )
+    {
+//        break;
+    }
+            
+    m_GameConsole.Init();
+    m_AudioDac.Init();
+    m_GameConsoleStarted = true;
+}
+    
+void Emulator_t::SaveVramDump()
+{
+    FILE* pFile = fopen( "VideoRam.dmp", "wb" );
+            
+    if( NULL != pFile )
+    {
+        uint8_t buffer[ CARTRIDGE_PPU_VRAM_SIZE ];
+        m_GameConsole.DumpPpuMemory( buffer, CARTRIDGE_PPU_VRAM_BASE_ADDR, sizeof( buffer ) );
+        fwrite( buffer, sizeof( uint8_t ), sizeof( buffer ), pFile );
+        fclose( pFile );
+    }
+}
+
+void Emulator_t::SaveChrDump()
+{
+    FILE* pFile = fopen( "PpuChr.dmp", "wb" );
+            
+    if( NULL != pFile )
+    {
+        uint8_t buffer[ CARTRIDGE_VIDEO_ROM_SIZE ];
+        m_GameConsole.DumpPpuMemory( buffer, CARTRIDGE_VIDEO_ROM_BASE_PPU_ADDR, sizeof( buffer ) );
+        fwrite( buffer, sizeof( uint8_t ), sizeof( buffer ), pFile );
+        fclose( pFile );
+    }
+}
+
+
 void Emulator_t::UserControl( ConsoleCommand_t command )
 {
 
@@ -79,82 +188,24 @@ void Emulator_t::UserControl( ConsoleCommand_t command )
         break;
 
         case EMULATOR_LOAD_GAME_ROM_CMD:
-        {
-            m_GameConsoleStarted = false;
-
-           // m_RomManager.Unload();
-			
-            FileOpenDialog_t fileOpenDialog;
-
-            std::string filePath = fileOpenDialog.Browse( " Please Select ROM File ", "ROM images\0*.nes\0" );
-
-            FileStatus_t fileStatus = m_RomManager.Load( filePath );
-           
-            if( FILE_SUCCESS_STATUS != fileStatus )
-            {
-                break;
-            }
-            
-            m_GameConsole.Init();
-            m_AudioDac.Init();
-            m_GameConsoleStarted = true;
-        }
+            LoadGameRom();    
         break;
 
-        case EMULATOR_SAVE_GAME_CMD:
-        {
-            
-//            m_RomManager.ResetSaveFile();
-            
-            uint8_t buffer[ 1024 ];
-               
-            uint32_t len = 0;
-            
-            do
-            {
-                
-                uint32_t len = m_GameConsole.SaveGameContext( buffer, sizeof( buffer ) );
-                
-                if( len > 0 )
-                {
-                    //m_RomManager.AppendToSaveFile( buffer, len );
-                }
-                
-            }while( len > 0 );
-        }
+        case EMULATOR_SAVE_GAME_CONTEXT_CMD:
+            SaveGameContext();
         break;
 
-        case EMULATOR_LOAD_GAME_CMD:
-            
+        case EMULATOR_LOAD_GAME_CONTEXT_CMD:
+            LoadGameContext();
         break;
 
         case EMULATOR_SAVE_VRAM_DUMP_CMD:
-        {
-            FILE* pFile = fopen( "VideoRam.dmp", "wb" );
-            
-            if( NULL != pFile )
-            {
-                uint8_t buffer[ CARTRIDGE_PPU_VRAM_SIZE ];
-                m_GameConsole.DumpPpuMemory( buffer, CARTRIDGE_PPU_VRAM_BASE_ADDR, sizeof( buffer ) );
-                fwrite( buffer, sizeof( uint8_t ), sizeof( buffer ), pFile );
-                fclose( pFile );
-            }
-        }
+            SaveVramDump();
         break;
         
             
         case EMULATOR_SAVE_CHR_DUMP_CMD:
-        {
-            FILE* pFile = fopen( "PpuChr.dmp", "wb" );
-            
-            if( NULL != pFile )
-            {
-                uint8_t buffer[ CARTRIDGE_VIDEO_ROM_SIZE ];
-                m_GameConsole.DumpPpuMemory( buffer, CARTRIDGE_VIDEO_ROM_BASE_PPU_ADDR, sizeof( buffer ) );
-                fwrite( buffer, sizeof( uint8_t ), sizeof( buffer ), pFile );
-                fclose( pFile );
-            }
-        }
+            SaveChrDump();
         break;
         
         default:
@@ -169,10 +220,10 @@ void Emulator_t::AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t by
     pEmulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
 }
 
-void Emulator_t::RomFileAcces( void * pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt )
+void Emulator_t::RomFileAcces( void* pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt )
 {
-    Emulator_t* emulator = static_cast< Emulator_t* >( pContext );
-    uint8_t* pSource = emulator->m_RomManager.GetDataPointer() + offset;
+    Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
+    uint8_t* pSource = pEmulator->m_RomManager.GetDataPointer() + offset;
 
     for ( uint16_t i = 0; i != bytesCnt; i++ ) // Подгружаем bytesCnt байт из файла игры в картридж
     {

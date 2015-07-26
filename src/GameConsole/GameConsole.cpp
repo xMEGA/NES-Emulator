@@ -6,21 +6,21 @@
 
 #include "GameConsole.h"
 
-
 uint32_t GameConsole_t::SaveGameContext( uint8_t* pData, uint32_t len  )
 {
-    m_Cpu.DumpRegisters( pData );
-    
-    len = 7;
-    
-    return 0;
+    uint8_t* pInputData = pData;
+
+    pData += m_Cpu.DumpRegisters( pData );
+    pData += m_Cpu.DumpMemory( pData, 0, 0x800 );
+        
+    return pData - pInputData;
 }
 
 
 void GameConsole_t::LoadGameContext( uint8_t* pData, uint32_t len )
 {
-
-
+    pData += m_Cpu.LoadRegisters( pData );
+    pData += m_Cpu.LoadToMemory( pData, 0, 0x800 );
 }
 
 void GameConsole_t::DumpPpuMemory( uint8_t* pDestBuffer, uint16_t startAddr, uint16_t size )
@@ -115,7 +115,7 @@ void GameConsole_t::CartridgeIrqCallBack( void* pContext )
 }
 
 
-void GameConsole_t::Run( uint32_t sysTick )
+void GameConsole_t::ProcessingOneFrame( uint32_t sysTick )
 {
 
     if( ( sysTick - m_FramesLastSysTick ) >= USECOND_IN_SECOND )

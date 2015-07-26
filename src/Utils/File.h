@@ -11,6 +11,14 @@
 #include <string>
 #include <stddef.h>
 
+enum FileStatus_t
+{
+    FILE_SUCCESS_STATUS = 0,
+    FILE_NOT_FOUND_STATUS,
+    FILE_NOT_OPENED_STATUS,
+    FILE_READ_ERROR_STATUS,
+};
+
 class File_t
 {
 public:
@@ -19,6 +27,9 @@ public:
     bool OpenForAppend( std::string filePath );
     
     size_t Read( uint8_t* pBuffer, size_t maxBufferSize );
+    bool Write( const uint8_t* pBuffer, size_t bytesCnt );
+    bool Write( const char* pBuffer, size_t bytesCnt );
+
     size_t GetSize();
 
     
