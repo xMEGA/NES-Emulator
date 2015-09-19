@@ -19,7 +19,7 @@ bool File_t::OpenForRead( std::string filePath )
 {
     bool status = false;
     
-    m_pFile = fopen( filePath.c_str(), "r" );
+    m_pFile = fopen( filePath.c_str(), "rb" );
           
     if( NULL != m_pFile )
     {
@@ -33,7 +33,7 @@ bool File_t::OpenForAppend( std::string filePath )
 {
     bool status = false;
     
-    m_pFile = fopen( filePath.c_str(), "w+" );
+    m_pFile = fopen( filePath.c_str(), "wb+" );
           
     if( NULL != m_pFile )
     {
