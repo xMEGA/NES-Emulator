@@ -22,38 +22,33 @@
 #define CPU_REGISTER_FILE_SIZE   7 //Bytes
 //#define    CPU_STACK_FENCE_ADDR    0x0100
 
-struct CpuProgCounterReg_t
+union CpuProgCounterReg_t
 {
-    union 
-    {
-        struct
-        {
-            uint8_t lowPart;
-            uint8_t highPart;
-        };
-        uint16_t value;
-    };
+	struct
+	{
+		uint8_t lowPart;
+		uint8_t highPart;
+	};
+	uint16_t value;
 };
 
-struct CpuStatusReg_t
+union CpuStatusReg_t
 {
-    union 
-    {
-        struct
-        {
-            uint8_t C    :1;        //Carry
-            uint8_t Z    :1;        //Zero
-            uint8_t I    :1;        //Interrupt (IRQ disable)
-            uint8_t D    :1;        //Decimal (use BCD for arithmetics)
-            uint8_t B    :1;        //Break
-            uint8_t Res  :1;        //Ignored
-            uint8_t V    :1;        //Overflow
-            uint8_t N    :1;        //Negative
-        
-        };
-        uint8_t value;
-    };
+	struct
+	{
+		uint8_t C    :1;        //Carry
+		uint8_t Z    :1;        //Zero
+		uint8_t I    :1;        //Interrupt (IRQ disable)
+		uint8_t D    :1;        //Decimal (use BCD for arithmetics)
+		uint8_t B    :1;        //Break
+		uint8_t Res  :1;        //Ignored
+		uint8_t V    :1;        //Overflow
+		uint8_t N    :1;        //Negative
+	
+	};
+	uint8_t value;
 };
+
 
 struct CpuRegisters_t
 {

@@ -24,14 +24,6 @@
 typedef void (*CpuBusWriteCallBack_t)   ( void * context, uint16_t busAddr, uint8_t busData );
 typedef uint8_t (*CpuBusReadCallBack_t) ( void * context, uint16_t busAddr );
 
-struct ExecContext_t
-{
-    uint8_t   Mnemonic;
-    uint16_t  OperandValue;
-    uint16_t  OperandAddr;
-    bool      IsAdditionCycleEnable;
-    uint8_t   ExecuteCycles;
-};
 
 class Cpu_t
 {
@@ -53,18 +45,15 @@ public:
     void InterruptRequest();
     //---------------------------------
     
-    uint8_t ExecuteOneCommand();
+    uint32_t ExecuteOneCommand();
 
 private:
-    inline void CalcZeroFlag( uint16_t n );
-    inline void CalcCarryFlag( uint16_t n );
-    inline void CalcSignFlag( uint16_t n );
-    inline void CalcOverflowFlag( uint16_t execRes, uint16_t  acc, uint16_t  mem );
+    //inline void CalcOverflowFlag( uint16_t execRes, uint16_t  acc, uint16_t  mem );
     inline void StackPush( uint8_t pushValue );
     inline uint8_t StackPop();
-    inline uint8_t CommandDecode( ExecContext_t* pExecContext );
-    inline uint8_t CommandExecute( ExecContext_t* pExecContext );
 
+    inline void BusWrite( uint16_t addr, uint8_t value );
+    inline uint8_t BusRead( uint16_t addr );
     
 private:
     CpuBusWriteCallBack_t fp_BusWriteCallBack;
