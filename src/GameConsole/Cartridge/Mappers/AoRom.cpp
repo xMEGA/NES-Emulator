@@ -6,9 +6,9 @@
 
 #include "AoRom.h"
 
-
-void AOROM_Mapper_t::Init( void )
+void AOROM_Mapper_t::Init( MapperInfo_t& mapperInfo )
 {
+    m_MapperInfo = mapperInfo;
     m_RomAddrBank0 = ROM_BANK_SIZE * m_MapperInfo.NumberOfRomBanks - MAPPER_AOROM_PROG_BANK0_ADDR;
     m_AddressPin10 = 0;
 }
@@ -16,6 +16,8 @@ void AOROM_Mapper_t::Init( void )
 
 void AOROM_Mapper_t::Write( uint16_t addr, uint8_t value )
 {
+    UNUSED( addr );
+
     uint8_t nBank = value & 0x07;
     
     m_RomAddrBank0 = MAPPER_AOROM_PROG_ROM_BANK_SIZE * nBank;

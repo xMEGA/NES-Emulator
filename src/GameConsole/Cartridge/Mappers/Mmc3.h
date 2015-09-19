@@ -189,7 +189,7 @@ PPU $1C00-$1FFF (or $0C00-$0FFF): 1 KB switchable CHR bank
 class MMC3_Mapper_t: public IMapper_t
 {
     public:
-        void Init( void );
+        void Init( MapperInfo_t& mapperInfo );
         void Write( uint16_t addr, uint8_t value ); 
         uint32_t GetRomAddrFromCpuAddr( uint16_t cpuAddr );
         uint32_t GetRomAddrFromPpuAddr( uint16_t ppuAddr );

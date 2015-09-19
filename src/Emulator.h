@@ -33,7 +33,7 @@ private:
 
 private:
     static void RomFileAcces( void* pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt );
-    static void PresentFrame( void* pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame );
+    static void PresentScanLineCallBack( void* pContext, uint8_t* pData, uint16_t scanLine );
     static void AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t bytesCnt );
   
 private:

@@ -61,7 +61,23 @@ std::string FileOpenDialog_t::Browse( std::string title, std::string filter )
 
 std::string FileOpenDialog_t::Browse( std::string title, std::string filter )
 {
-    return "/home/xmega/Games/Super Mario Bros. (JU) [!].nes";
+    //UNUSED( title );
+    //UNUSED( filter );
+
+//    return "/home/xmega/Games/BalloonFight.nes";
+   return "/home/xmega/Games/Super Mario Bros. (JU) [!].nes";   
+  //  return "/home/xmega/Games/Battletoads (USA).nes";      
+    
+  //  return "/home/xmega/Games/Battletoads_&_Double_Dragon_-_The_Ultimate_Team_(U).nes";      
+   //return "/home/xmega/Games/Felix_the_Cat_(U).nes";      
+   //return "/home/xmega/Games/Darkwing_Duck_(U).nes";      
+  
+   // return "/home/xmega/Games/Contra.nes";  
+    //return "/home/xmega/Games/Super_Contra_(J).nes";
+  // return "/home/xmega/Games/Sky_Destroyer_(J).nes";
+   
+   //  return "/home/xmega/Games/Smurfs.nes";
+   
 }
 
 #endif

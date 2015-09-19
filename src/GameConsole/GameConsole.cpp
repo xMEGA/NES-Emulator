@@ -5,9 +5,94 @@
 */
 
 #include "GameConsole.h"
+#include <stddef.h>
+#include <string.h>
+#include "Cartridge/Mappers/NoRom.h"
+#include "Cartridge/Mappers/UnRom.h"
+#include "Cartridge/Mappers/AoRom.h"
+#include "Cartridge/Mappers/Mmc3.h"
+#include "Cartridge/Mappers/Mmc1.h"
+
+IMapper_t* GameConsole_t::CreateMapper( CartridgeMapperType_t type )
+{
+    IMapper_t* pIMapper = NULL;
+    
+    switch( type )
+    {
+        case NO_MAPPER_MAPPER_TYPE:
+            pIMapper = new NO_Mapper_t;
+        break;
+
+        case NINTENDO_MMC1_MAPPER_TYPE:
+            pIMapper = new MMC1_Mapper_t;
+        break;
+
+        case UNROM_MAPPER_TYPE:
+            pIMapper = new UNROM_Mapper_t;
+        break;
+
+        case NINTENDO_MMC3_MAPPER_TYPE:
+           pIMapper = new MMC3_Mapper_t;
+        break;
+
+        case AOROM_MAPPER_TYPE:
+           pIMapper = new AOROM_Mapper_t;
+        break;
+
+    default:
+
+    break;
+                
+    }
+    
+    return pIMapper;
+}
+
+void GameConsole_t::LoadGameRomFile( uint8_t* pData, uint16_t size )
+{
+    UNUSED( size );
+
+    m_pRomFileBuffer = pData;
+
+    //m_Cartridge.Reset( pData, size, CartridgeInterruptReqest, m_pContext );
+    
+    m_pGameRomFile = pData;
+    
+    uint8_t gameRomInfoBuffer[ ROM_FILE_HEADER_SIZE ];
+    MapperInfo_t mapperInfo;
+
+    memcpy( gameRomInfoBuffer, m_pGameRomFile, ROM_FILE_HEADER_SIZE );
+    
+    GameRomAnaliser_t gameRomAnaliser;
+    
+    m_GameRomInfo = gameRomAnaliser.GetGameRomInfo( gameRomInfoBuffer );
+    
+    mapperInfo.CartridgeMapperType = m_GameRomInfo.CartridgeMapperType;
+    mapperInfo.MirroringType       = m_GameRomInfo.MirroringType;
+    mapperInfo.NumberOfRomBanks    = m_GameRomInfo.NumberOfRomBanks;
+
+    
+    if( NULL != m_pMapper )
+    {
+        delete m_pMapper;
+        m_pMapper = NULL;
+    }
+      
+    m_pMapper = CreateMapper( mapperInfo.CartridgeMapperType );
+    
+    if( NULL != m_pMapper )
+    {
+        m_pMapper->Init( mapperInfo );
+        m_pMapper->SetInterruptRequestCallBack( CartridgeInterruptReqest, this );
+    }
+    
+}
+
 
 uint32_t GameConsole_t::SaveGameContext( uint8_t* pData, uint32_t len  )
 {
+    UNUSED( len );
+
     uint8_t* pInputData = pData;
 
     pData += m_Cpu.DumpRegisters( pData );
@@ -19,15 +104,19 @@ uint32_t GameConsole_t::SaveGameContext( uint8_t* pData, uint32_t len  )
 
 void GameConsole_t::LoadGameContext( uint8_t* pData, uint32_t len )
 {
+    UNUSED( len );
+
     pData += m_Cpu.LoadRegisters( pData );
     pData += m_Cpu.LoadToMemory( pData, 0, 0x800 );
 }
 
 void GameConsole_t::DumpPpuMemory( uint8_t* pDestBuffer, uint16_t startAddr, uint16_t size )
 {
+    UNUSED( pDestBuffer );
+
     for( uint16_t addr = startAddr; addr < ( startAddr + size ); addr++ )
     {
-        *pDestBuffer ++= m_Cartridge.PpuRead( addr );
+//        *pDestBuffer ++= m_Cartridge.PpuRead( addr );
     }
 }
 
@@ -66,30 +155,19 @@ void GameConsole_t::SetButtonGamepadB(uint8_t button)
     m_Control.SetButtonGamepadB( button );
 }
 
-void GameConsole_t::SetPresentFrameCallBack( PresentFrameCallBack_t presentFrameCallBack, void * pContext )
+void GameConsole_t::SetPresentScanLineCallBack( PresentScanLineCallBack_t presentFrameCallBack, void * pContext )
 {
-    fp_PresentFrameCallBack = presentFrameCallBack;
-    m_pContext = pContext;
-}
-
-
-void GameConsole_t::SetRomFileAccesCallBack( RomFileAccesCallBack_t romFileAccesCallBack, void * pContext )
-{
-    fp_RomFileAccesCallBack = romFileAccesCallBack;
+    m_fpPresentScanLineCallBack = presentFrameCallBack;
     m_pContext = pContext;
 }
 
 void GameConsole_t::Init()
 {
-    m_Cartridge.SetRomFileAccesCallBack( fp_RomFileAccesCallBack, m_pContext );
-    m_Cartridge.SetInterruptRequestCallBack( CartridgeInterruptReqest, m_pContext );
-    m_Cartridge.Reset();
-
     m_Cpu.SetBusReadCallBack( CpuBusRead, this );
     m_Cpu.SetBusWriteCallBack( CpuBusWrite, this ); 
     m_Cpu.Reset();
 
-    m_Ppu.SetPresentFrameCallBack( fp_PresentFrameCallBack, m_pContext );
+    m_Ppu.SetPresentFrameCallBack( m_fpPresentScanLineCallBack, m_pContext );
     m_Ppu.SetBusWriteCallBack( PpuBusWrite, this );
     m_Ppu.SetBusReadCallBack( PpuBusRead, this );
     m_Ppu.SetVsyncSignalCallBack( VsyncSignal, this );
@@ -101,21 +179,21 @@ void GameConsole_t::Init()
 
     m_Control.Reset();
 
-    m_LastSysTick = 0;
-    m_FramesPerSecond = 0;
-    m_FramesCnt = 0;
+    m_LastSysTick       = 0;
+    m_FramesPerSecond   = 0;
+    m_FramesCnt         = 0;
     m_FramesLastSysTick = 0;
-    m_CpuCycles = 0;
+    m_CpuCycles         = 0;
+    m_pMapper           = NULL;
 }
 
 void GameConsole_t::CartridgeIrqCallBack( void* pContext )
 {
-    GameConsole_t* gameConsole = static_cast<GameConsole_t *>(pContext);
-    gameConsole->m_Cartridge.IrqCounterDecrement();
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    pGameConsole->m_pMapper->IrqCounterDecrement();
 }
 
-
-void GameConsole_t::ProcessingOneFrame( uint32_t sysTick )
+void GameConsole_t::ProcessingOneFrame( uint64_t sysTick )
 {
 
     if( ( sysTick - m_FramesLastSysTick ) >= USECOND_IN_SECOND )
@@ -125,11 +203,12 @@ void GameConsole_t::ProcessingOneFrame( uint32_t sysTick )
         m_FramesCnt = 0;
     }
 
-    uint32_t deltaTime = sysTick - m_LastSysTick;
-	
+    uint64_t deltaTime = sysTick - m_LastSysTick;
+
+
     //if ( deltaTime > ONE_FRAME_TIME )
     {
-        m_LastSysTick = sysTick; 
+        m_LastSysTick = sysTick;
 
         m_CpuCycles = 0;
 
@@ -138,30 +217,69 @@ void GameConsole_t::ProcessingOneFrame( uint32_t sysTick )
         do
         {
             uint32_t cycles = m_Cpu.ExecuteOneCommand();
-            ppuCycles += m_Ppu.Run( cycles );            
+            ppuCycles += m_Ppu.Run( cycles );
         }
         while( ppuCycles < 89342 );
         
         m_FramesCnt++;
     }
-
 }
 
-void GameConsole_t::CpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busData)
+void GameConsole_t::CpuBusWrite( void* pContext, uint16_t busAddr, uint8_t busData )
 {
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    pGameConsole->CpuBusWrite( busAddr, busData );
+}
 
+uint8_t GameConsole_t::CpuBusRead( void* pContext, uint16_t busAddr )
+{
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    return pGameConsole->CpuBusRead( busAddr );
+}
+
+void GameConsole_t::PpuBusWrite( void* pContext, uint16_t busAddr, uint8_t busData )
+{
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    pGameConsole->PpuBusWrite( busAddr, busData );
+}
+
+uint8_t GameConsole_t::PpuBusRead( void* pContext, uint16_t busAddr )
+{
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    return pGameConsole->PpuBusRead( busAddr );
+}
+
+void GameConsole_t::CartridgeInterruptReqest( void* pContext )
+{
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    pGameConsole->m_Cpu.InterruptRequest();
+}
+
+void GameConsole_t::ApuInterruptReqest( void* pContext )
+{
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    pGameConsole->m_Cpu.InterruptRequest();
+}
+
+void GameConsole_t::VsyncSignal( void* pContext )
+{
+    GameConsole_t* pGameConsole = static_cast< GameConsole_t* >( pContext );
+    pGameConsole->m_Cpu.NonMaskableInterrupt();
+}
+
+void GameConsole_t::CpuBusWrite( uint16_t busAddr, uint8_t busData)
+{
     uint8_t readData = 0;
     
 
     if( busAddr < 0x2000 )
     {
         busAddr &= 0x07FF;
-        pGameConsole->m_Ram[ busAddr ] = busData;
+        m_Ram[ busAddr ] = busData;
     }
     else if( busAddr < 0x2008 )
     {
-        pGameConsole->m_Ppu.Write(busAddr, busData);
+        m_Ppu.Write(busAddr, busData);
     }
     else if( busAddr <= 0x4017 )
     {
@@ -170,36 +288,40 @@ void GameConsole_t::CpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busD
         {
             uint16_t intMemAddr = busData << 8;
 
-            pGameConsole->m_Ppu.Write( PPU_REG_ADDR_SPRITES_ADDR, 0 );
+            m_Ppu.Write( PPU_REG_ADDR_SPRITES_ADDR, 0 );
 
             //cpuResCycles -= 2 * 256;
-            pGameConsole->m_CpuCycles  += 2 * 256;
+            m_CpuCycles  += 2 * 256;
 
 
-            for( uint16_t i = 0; i != 256; i++ )
+            for( uint16_t idx = 0; idx < 256; idx++ )
             {
-                readData = pGameConsole->m_Ram[ intMemAddr ];
-                pGameConsole->m_Ppu.Write( PPU_REG_DATA_SPRITES_ADDR, readData );
+                readData = m_Ram[ intMemAddr ];
+                m_Ppu.Write( PPU_REG_DATA_SPRITES_ADDR, readData );
                 intMemAddr++;
             }
 
         }
         else
         {
-            pGameConsole->m_Apu.Write(busAddr, busData);
-            pGameConsole->m_Control.Write(busAddr, busData);
+            m_Apu.Write( busAddr, busData );
+            m_Control.Write( busAddr, busData );
         }
 
     }
-    else //if( busAddr <= 0xBFFF)
+    else if( busAddr >= CARTRIDGE_SWITCHED_ROM_BASE_CPU_ADDR )
     {
-        pGameConsole->m_Cartridge.CpuWrite(busAddr, busData);
+        m_pMapper->Write( busAddr, busData );
+    }
+    else// if( busAddr >= CARTRIDGE_RAM_BASE_CPU_ADDR )
+    {
+        busAddr -= CARTRIDGE_RAM_BASE_CPU_ADDR;
+        m_CartridgeRam[ busAddr ] = busData;
     }
 }
 
-uint8_t GameConsole_t::CpuBusRead( void * pContext, uint16_t busAddr )
+uint8_t GameConsole_t::CpuBusRead( uint16_t busAddr )
 {
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
 
     uint8_t readData = 0;
 
@@ -207,64 +329,75 @@ uint8_t GameConsole_t::CpuBusRead( void * pContext, uint16_t busAddr )
     if( busAddr < 0x2000)
     {
         busAddr &= 0x07FF; // CPU RAM mirroring
-        readData = pGameConsole->m_Ram[ busAddr ];
+        readData = m_Ram[ busAddr ];
     }
     else if( busAddr <= 0x2FFA )
     {
 
-        readData = pGameConsole->m_Ppu.Read(busAddr);
+        readData = m_Ppu.Read(busAddr);
     }
     else if( busAddr <= 0x4017 )
     {
-        readData = pGameConsole->m_Apu.Read( busAddr );
+        readData = m_Apu.Read( busAddr );
 
         if( ( busAddr == 0x4016) || ( busAddr == 0x4017) ) 
         {
-            readData = pGameConsole->m_Control.Read( busAddr );
+            readData = m_Control.Read( busAddr );
         }
     }
-    else
+    else if( busAddr >= CARTRIDGE_SWITCHED_ROM_BASE_CPU_ADDR )
     {
-        readData = pGameConsole->m_Cartridge.CpuRead( busAddr );
+        uint32_t offset = ROM_FILE_HEADER_SIZE + m_pMapper->GetRomAddrFromCpuAddr( busAddr );
+        readData = m_pGameRomFile[ offset ];
+    }
+    else// if( busAddr >= CARTRIDGE_RAM_BASE_CPU_ADDR )
+    {
+        busAddr -= CARTRIDGE_RAM_BASE_CPU_ADDR;
+        readData = m_CartridgeRam[ busAddr ];
     }
 
     return readData;
 }
 
-void GameConsole_t::PpuBusWrite( void * pContext, uint16_t busAddr, uint8_t busData)
+void GameConsole_t::PpuBusWrite( uint16_t busAddr, uint8_t busData )
 {
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
     busAddr &= 0x3FFF;
-    pGameConsole->m_Cartridge.PpuWrite( busAddr, busData );
+
+    if( busAddr >= 0x2000 )
+    {       
+        uint16_t videoRamAddr = m_pMapper->TranslateVideoRamAddr( busAddr );    
+                       
+        m_CartrigeVideoRam[ videoRamAddr ] = busData;  
+    }
+    else
+    {
+        m_CartrigeChrRam[ busAddr ] = busData;
+    }
+    
 }
 
 
-uint8_t GameConsole_t::PpuBusRead( void * pContext, uint16_t busAddr )
+uint8_t GameConsole_t::PpuBusRead( uint16_t busAddr )
 {
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
     uint8_t data;
 
-    busAddr &= 0x3FFF;//!!!
+    //busAddr &= 0x3FFF;//!!!
 
-    data = pGameConsole->m_Cartridge.PpuRead( busAddr );
+    if( busAddr >= CARTRIDGE_PPU_VRAM_BASE_ADDR )
+    {   
+        uint16_t videoRamAddr = m_pMapper->TranslateVideoRamAddr( busAddr );               
+        data = m_CartrigeVideoRam[ videoRamAddr ];
+    }
+    else if( 0 != m_GameRomInfo.NumberOfVideoRomBanks)
+    {
+        uint32_t offset = m_pMapper->GetRomAddrFromPpuAddr( busAddr );
+        data = m_pGameRomFile[ offset ];
+    }
+    else
+    {
+        data = m_CartrigeChrRam[ busAddr ];
+    }
 
+    
     return data;
-}
-
-void GameConsole_t::CartridgeInterruptReqest( void * pContext )
-{
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
-    pGameConsole->m_Cpu.InterruptRequest();
-}
-
-void GameConsole_t::ApuInterruptReqest( void * pContext )
-{
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
-    pGameConsole->m_Cpu.InterruptRequest();
-}
-
-void GameConsole_t::VsyncSignal( void * pContext )
-{
-    GameConsole_t* pGameConsole = static_cast<GameConsole_t *>(pContext);
-    pGameConsole->m_Cpu.NonMaskableInterrupt();
 }

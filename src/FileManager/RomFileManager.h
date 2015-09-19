@@ -23,10 +23,12 @@ public:
     bool Load( std::string& filePath );
     void Unload();
     uint8_t* GetDataPointer();
+    uint32_t GetRomSize();
     uint32_t GetRomFileChs();
 
 private:
     uint8_t*    m_pDataPointer;
+    uint32_t    m_RomSize;
     std::string m_pGameFileName;
 };
 #endif

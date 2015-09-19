@@ -14,11 +14,11 @@ void Emulator_t::Init()
 {
     m_GameConsoleStarted = false;
 
-    m_GameConsole.SetPresentFrameCallBack( PresentFrame, this );
-    m_GameConsole.SetRomFileAccesCallBack( RomFileAcces, this );
+    m_GameConsole.SetPresentScanLineCallBack( PresentScanLineCallBack, this );
+//    m_GameConsole.SetRomFileAccesCallBack( RomFileAcces, this );
     m_GameConsole.SetAudioSamplingRate( AUDIO_DAC_SAMPLING_RATE );
    
-    m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_PAL_RESOLUTION, 2 * PPU_HORIZONTAL_RESOLUTION, 2 * PPU_VERTICAL_PAL_RESOLUTION, false );
+    m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_RESOLUTION, 2 * PPU_HORIZONTAL_RESOLUTION, 2 * PPU_VERTICAL_RESOLUTION, false );
 
     m_Display.Clear();
     m_Display.Flip();
@@ -30,6 +30,9 @@ void Emulator_t::Init()
 
     m_InputManager.Init();
 }
+
+uint32_t FrameCounter = 0;
+uint32_t Fps = 0;
 
 bool Emulator_t::Run()
 {
@@ -54,9 +57,22 @@ bool Emulator_t::Run()
             m_GameConsole.SetButtonGamepadB( inputManagerInfo.GamePad.GamepadStateB );
         }
         
-		uint32_t msec = TimeCounterGetMsec();
+        uint32_t msec = TimeCounterGetMsec();
+        
+        
         m_GameConsole.ProcessingOneFrame( msec );
 
+        Fps = m_GameConsole.GetFramesPerSecond();
+       
+        FrameCounter++;
+        
+        if( FrameCounter > 20000 )
+        {
+            printf( "FPS=%d\n", Fps );
+            fflush( stdout );
+            inputManagerInfo.General.IsExit = true;
+        }
+        
         ShowFps( m_GameConsole.GetFramesPerSecond() );
     }
 
@@ -145,10 +161,14 @@ void Emulator_t::LoadGameRom()
     {
 //        break;
     }
-            
+
     m_GameConsole.Init();
+    m_GameConsole.LoadGameRomFile( m_RomManager.GetDataPointer(), m_RomManager.GetRomSize() );
     m_AudioDac.Init();
     m_GameConsoleStarted = true;
+    
+    FrameCounter = 0;
+    Fps = 0;
 }
     
 void Emulator_t::SaveVramDump()
@@ -214,10 +234,14 @@ void Emulator_t::UserControl( ConsoleCommand_t command )
     }
 }
 
-void Emulator_t::AudioDacQueryFrame( void* pContext, int16_t* pData, uint16_t bytesCnt )
+void Emulator_t::AudioDacQueryFrame(void* pContext, int16_t* pData, uint16_t bytesCnt)
 {
-    Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
-    pEmulator->m_GameConsole.GetAudioFrame( pData, bytesCnt );
+	Emulator_t* pEmulator = static_cast<Emulator_t*>(pContext);
+
+	if( true == pEmulator->m_GameConsoleStarted )
+	{
+		pEmulator->m_GameConsole.GetAudioFrame(pData, bytesCnt);
+	}
 }
 
 void Emulator_t::RomFileAcces( void* pContext, uint8_t* pData, uint32_t offset, uint16_t bytesCnt )
@@ -231,8 +255,10 @@ void Emulator_t::RomFileAcces( void* pContext, uint8_t* pData, uint32_t offset, 
     }
 }
 
-void Emulator_t::PresentFrame( void * pContext, uint8_t* pData, uint16_t len, uint16_t posInFrame )
+void Emulator_t::PresentScanLineCallBack( void* pContext, uint8_t* pData, uint16_t scanLine )
 {    
+    //UNUSED( len );
+
     Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
 
 
@@ -261,18 +287,18 @@ void Emulator_t::PresentFrame( void * pContext, uint8_t* pData, uint16_t len, ui
     static uint32_t* pPalette = GetPalettePixelRGBA();
     static uint32_t  displayAlign = pEmulator->m_Display.GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
 
-    if( 0 == posInFrame )
-    {
-        pEmulator->m_Display.Flip();
-        pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer();
-    }
-    
     for( uint16_t xVisible = 0; xVisible < PPU_HORIZONTAL_RESOLUTION; xVisible++ ) 
     {
         *pPixel ++= pPalette[ *pData++ ];
     }
 
     pPixel += displayAlign;
+
+     if( 0 == scanLine )
+    {
+        pEmulator->m_Display.Flip();
+        pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer();
+    }
 
 #endif
 

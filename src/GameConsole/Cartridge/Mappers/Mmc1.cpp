@@ -6,8 +6,10 @@
 
 #include "Mmc1.h"
 
-void MMC1_Mapper_t::Init( void )
+void MMC1_Mapper_t::Init( MapperInfo_t& mapperInfo )
 {
+    m_MapperInfo = mapperInfo;
+    
     m_RomAddrBank[1] = ROM_BANK_SIZE * m_MapperInfo.NumberOfRomBanks - MAPPER_MMC1_PROG_ROM_BANK_SIZE;
     m_RomAddrBank[0] = m_RomAddrBank[1] - MAPPER_MMC1_PROG_ROM_BANK_SIZE;
         
@@ -125,7 +127,7 @@ uint32_t MMC1_Mapper_t::GetRomAddrFromPpuAddr( uint16_t ppuAddr )
 
     nBank &= 0x01;
 
-    retValue = m_ChrAddrBank[nBank] + addrInBank;
+    retValue = ROM_FILE_HEADER_SIZE + m_ChrAddrBank[nBank] + addrInBank;
 
     return retValue;
 }

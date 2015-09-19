@@ -32,7 +32,7 @@
 class UNROM_Mapper_t : public IMapper_t 
 {
     public:
-        void Init( void );
+        void Init( MapperInfo_t& mapperInfo );
         void Write( uint16_t addr, uint8_t value );
         uint32_t GetRomAddrFromCpuAddr( uint16_t cpuAddr );
 

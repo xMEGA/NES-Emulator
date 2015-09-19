@@ -7,8 +7,10 @@
 #include "Mmc3.h"
 
 
-void MMC3_Mapper_t::Init( void )
+void MMC3_Mapper_t::Init( MapperInfo_t& mapperInfo )
 {
+    m_MapperInfo = mapperInfo;
+    
     for( uint8_t i = 0; i != 4; i++ )
     {
         m_RomAddrBank[i] = ROM_BANK_SIZE * m_MapperInfo.NumberOfRomBanks - (4 - i) * MAPPER_MMC3_PROG_ROM_BANK_SIZE;
@@ -131,7 +133,7 @@ uint32_t MMC3_Mapper_t::GetRomAddrFromPpuAddr( uint16_t ppuAddr )
     
     nBank &= 0x07;
 
-    retValue = m_ChrAddrBank[nBank] + ( ppuAddr&0x3FF );
+    retValue = ROM_FILE_HEADER_SIZE + m_ChrAddrBank[nBank] + ( ppuAddr&0x3FF );
 
     return retValue;
 }

@@ -30,7 +30,7 @@
 class NO_Mapper_t : public IMapper_t
 {
 public:
-    void Init( void );
+    void Init( MapperInfo_t& mapperInfo );
     uint32_t GetRomAddrFromCpuAddr( uint16_t cpuAddr );
     uint32_t GetRomAddrFromPpuAddr( uint16_t ppuAddr );
 

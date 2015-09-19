@@ -6,14 +6,17 @@
 
 #include "UnRom.h"
 
-void UNROM_Mapper_t ::Init( void )
+void UNROM_Mapper_t ::Init( MapperInfo_t& mapperInfo )
 {
+    m_MapperInfo = mapperInfo;
+    
     m_RomAddrBank1 = ROM_BANK_SIZE * m_MapperInfo.NumberOfRomBanks - ROM_BANK_SIZE;
     m_RomAddrBank0 = m_RomAddrBank1 - ROM_BANK_SIZE;
 }
 
 void UNROM_Mapper_t::Write( uint16_t addr, uint8_t value )
 {
+    UNUSED( addr );
     uint8_t nBank = 0x07 & value;
     m_RomAddrBank0 = nBank * ROM_BANK_SIZE;
 }

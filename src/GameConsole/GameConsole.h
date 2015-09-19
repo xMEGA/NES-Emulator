@@ -9,10 +9,11 @@
 
 #include <stdint.h>
 #include "Cpu/Cpu.h"
-#include "Cartridge/Cartridge.h"
 #include "Ppu/Ppu.h"
 #include "Control/Control.h"
+#include "Cartridge/Mappers/IMapper.h"
 #include "Apu/Apu.h"
+
 
 #define DMA_REG_CPU_ADDR            0x4014
 
@@ -41,16 +42,15 @@
 
 #define INTERNAL_RAM_SIZE           0x0800
 
-typedef void ( *PresentFrameCallBack_t )     ( void * context, uint8_t* pData, uint16_t len, uint16_t posInFrame );
-typedef void ( *RomFileAccesCallBack_t )     ( void * context, uint8_t* pData, uint32_t offset, uint16_t bytesCnt );
+typedef void ( *PresentScanLineCallBack_t )     ( void* pContext, uint8_t* pData, uint16_t scanLine );
 
 class GameConsole_t
 {
 
 public:
-    void SetPresentFrameCallBack( PresentFrameCallBack_t presentFrameCallBack, void * pContext );
-    void SetRomFileAccesCallBack( RomFileAccesCallBack_t romFileAccesCallBack, void * pContext );
-        
+    void SetPresentScanLineCallBack( PresentScanLineCallBack_t presentFrameCallBack, void * pContext );
+    void LoadGameRomFile( uint8_t* pData, uint16_t size );
+    
     void Init();
     void SetAudioSamplingRate( uint32_t samplingRate );
     
@@ -59,7 +59,7 @@ public:
     void LoadGameContext( uint8_t* pData, uint32_t len );
     // --------------------------------------
 
-    void ProcessingOneFrame( uint32_t sysTick );
+    void ProcessingOneFrame( uint64_t sysTick );
     void SetButtonGamepadA( uint8_t button );
     void SetButtonGamepadB( uint8_t button );   
     void GetAudioFrame( int16_t* pData, uint16_t len );
@@ -81,26 +81,41 @@ private:
 
     static void    CartridgeIrqCallBack( void* pContext );
 
+private:   
+    inline void     CpuBusWrite( uint16_t busAddr, uint8_t busData );
+    inline uint8_t  CpuBusRead ( uint16_t busAddr );
+    inline void     PpuBusWrite( uint16_t busAddr, uint8_t busData );
+    inline uint8_t  PpuBusRead ( uint16_t busAddr );
+    inline uint16_t TranslateVideoRamAddr( uint16_t addr );
+    IMapper_t* CreateMapper( CartridgeMapperType_t type );
 
 private:
     Cpu_t          m_Cpu;
     Ppu_t          m_Ppu;         
     Control_t      m_Control;
     Apu_t          m_Apu;
-    Cartridge_t    m_Cartridge;
-    uint8_t        m_Ram[ INTERNAL_RAM_SIZE ];        
 
+    uint8_t        m_Ram[ INTERNAL_RAM_SIZE ];
+    uint8_t        m_CartrigeChrRam   [ 0x2000 ];
+    uint8_t        m_CartrigeVideoRam [ 0x1000 ];
+    uint8_t        m_CartridgeRam     [ 0x2000 ];
+    IMapper_t*     m_pMapper;
+    uint8_t*                    m_pGameRomFile;
+    GameRomInfo_t  m_GameRomInfo;
+    
+    uint8_t*       m_pRomFileBuffer;
+    
 private:
-    uint32_t       m_LastSysTick;
+    uint64_t       m_LastSysTick;
     uint16_t       m_FramesPerSecond;
     uint16_t       m_FramesCnt;
-    uint32_t       m_FramesLastSysTick;
+    uint64_t       m_FramesLastSysTick;
     uint16_t       m_CpuCycles;
 
 private:
-    PresentFrameCallBack_t fp_PresentFrameCallBack;
-    RomFileAccesCallBack_t fp_RomFileAccesCallBack;
-    void*                  m_pContext;
+    PresentScanLineCallBack_t m_fpPresentScanLineCallBack;
+    RomFileAccesCallBack_t    m_fpRomFileAccesCallBack;
+    void*                     m_pContext;
 };
 
 

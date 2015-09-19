@@ -62,7 +62,6 @@ union PpuCtrlReg2_t
 
 union PpuStatusReg_t
 {
-
     struct
     {
         uint8_t NotUsedBits          : 4; // Не используются
@@ -72,7 +71,6 @@ union PpuStatusReg_t
         uint8_t VsyncFlag            : 1; // Флаг кадрового синхроимпульса ( 0 - видеопроцессор формирует изображение, 1 - видеопроцессор генерирует кадровый синхроимпульс )
     };
     uint8_t Value;
-
 };
 
 struct PpuScrollingReg_t
@@ -88,29 +86,20 @@ union PpuAddrVideoReg_t
         uint8_t lowPart;
         uint8_t highPart;
     };
-    uint16_t value;
+    uint16_t Value;
 };
 
 
 struct PpuRegisters_t
 {
-  //  public:
-        //void Reset(void);
-        //void WriteVideoRamAddrReg( uint8_t halfAddr ); // Записывает адрес в регистр AV за два захода
-        //void WriteScrollingReg( uint8_t value ); // Записывает значение прокрутки изображения за два захода ( сначала вертикальная прокрутка, затем - горизонтальная )
- //   public:
-        PpuCtrlReg1_t       C1;
-        PpuCtrlReg2_t       C2;        
-        PpuStatusReg_t      SR;
-        uint8_t             AS;
-        //uint8_t             DS;
-        //PpuScrollingReg_t   HS;
-        uint16_t            AV;
-       // uint8_t             DV;
-    
-   /* private:
-        bool m_VideoRamAddrRegHighPart;
-        bool m_VerticalScrollingValue;*/
+    PpuCtrlReg1_t       C1;
+    PpuCtrlReg2_t       C2;
+    PpuStatusReg_t      SR;
+    uint8_t             AS;
+    //uint8_t             DS;
+    //PpuScrollingReg_t   HS;
+    uint16_t            AV;
+    // uint8_t             DV;
 };
 
 

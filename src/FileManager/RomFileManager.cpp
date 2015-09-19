@@ -28,18 +28,18 @@ bool RomFileManager_t::Load( std::string& filePath )
             
     if( true == isOpened )
     {
-        uint32_t fileSize = file.GetSize();
+        m_RomSize = file.GetSize();
         
         if( NULL != m_pDataPointer )
         {
             delete m_pDataPointer;
         }
 
-        m_pDataPointer = new uint8_t [ fileSize ];
+        m_pDataPointer = new uint8_t [ m_RomSize ];
         
         if( NULL != m_pDataPointer )
         {
-            file.Read( m_pDataPointer, fileSize );
+            file.Read( m_pDataPointer, m_RomSize );
         }
             
         file.Close();
@@ -58,6 +58,11 @@ std::string RomFileManager_t::GetFilePath()
 uint8_t* RomFileManager_t::GetDataPointer()
 {
     return m_pDataPointer;
+}
+
+uint32_t RomFileManager_t::GetRomSize()
+{
+    return m_RomSize;
 }
 
 void RomFileManager_t::Unload()
