@@ -14,9 +14,8 @@
     <ClCompile Include="..\..\..\src\AudioDac\AudioDac.cpp" />
     <ClCompile Include="..\..\..\src\Display\Display.cpp" />
     <ClCompile Include="..\..\..\src\Emulator.cpp" />
-    <ClCompile Include="..\..\..\src\FileManager\File.cpp" />
-    <ClCompile Include="..\..\..\src\FileManager\FileManager.cpp" />
     <ClCompile Include="..\..\..\src\FileManager\FileOpenDialog.cpp" />
+    <ClCompile Include="..\..\..\src\FileManager\RomFileManager.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Apu\Apu.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Apu\ApuRegisters.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Apu\NoiseGenerator.cpp" />
@@ -40,11 +39,8 @@
     <ClCompile Include="..\..\..\src\GameConsole\Ppu\PpuRegisters.cpp" />
     <ClCompile Include="..\..\..\src\InputManager\InputManager.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
+    <ClCompile Include="..\..\..\src\Utils\File.cpp" />
     <ClCompile Include="..\..\..\src\Utils\TimeCounter.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\src\FileManager\FileOpenDialog.h" />
-    <ClInclude Include="..\..\..\src\Utils\TimeCounter.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{44C2D06E-DF8C-42A5-8AAF-BC0883F088D2}</ProjectGuid>
@@ -124,7 +120,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\;..\..\..\include;..\..\..\thirdparty\SDL2\build\windows_x86_64\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\;..\..\..\src\Utils;..\..\..\include;..\..\..\thirdparty\SDL2\build\windows_x86_64\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
