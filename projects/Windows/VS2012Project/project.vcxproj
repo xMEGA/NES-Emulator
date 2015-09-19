@@ -21,7 +21,6 @@
     <ClCompile Include="..\..\..\src\GameConsole\Apu\NoiseGenerator.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Apu\SquareGenerator.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Apu\TriangleGenerator.cpp" />
-    <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Cartridge.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Cartridge\GameRomAnaliser.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\AoRom.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\IMapper.cpp" />
@@ -31,12 +30,9 @@
     <ClCompile Include="..\..\..\src\GameConsole\Cartridge\Mappers\UnRom.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Control\Control.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Cpu\Cpu.cpp" />
-    <ClCompile Include="..\..\..\src\GameConsole\Cpu\CpuOpCodes.cpp" />
-    <ClCompile Include="..\..\..\src\GameConsole\Cpu\CpuRegisters.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\GameConsole.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Ppu\Ppu.cpp" />
     <ClCompile Include="..\..\..\src\GameConsole\Ppu\PpuPalette.cpp" />
-    <ClCompile Include="..\..\..\src\GameConsole\Ppu\PpuRegisters.cpp" />
     <ClCompile Include="..\..\..\src\InputManager\InputManager.cpp" />
     <ClCompile Include="..\..\..\src\main.cpp" />
     <ClCompile Include="..\..\..\src\Utils\File.cpp" />
@@ -83,7 +79,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\;..\..\..\include;..\..\..\thirdparty\SDL2\build\windows_x86_64\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\;..\..\..\src\Utils;..\..\..\include;..\..\..\thirdparty\SDL2\build\windows_x86_64\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -93,6 +89,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ForcedIncludeFiles>Macros.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -123,6 +120,7 @@
       <AdditionalIncludeDirectories>..\..\..\;..\..\..\src\Utils;..\..\..\include;..\..\..\thirdparty\SDL2\build\windows_x86_64\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>Macros.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
