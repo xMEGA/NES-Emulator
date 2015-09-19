@@ -15,7 +15,6 @@ void Emulator_t::Init()
     m_GameConsoleStarted = false;
 
     m_GameConsole.SetPresentScanLineCallBack( PresentScanLineCallBack, this );
-//    m_GameConsole.SetRomFileAccesCallBack( RomFileAcces, this );
     m_GameConsole.SetAudioSamplingRate( AUDIO_DAC_SAMPLING_RATE );
    
     m_Display.Init( PPU_HORIZONTAL_RESOLUTION, PPU_VERTICAL_RESOLUTION, 2 * PPU_HORIZONTAL_RESOLUTION, 2 * PPU_VERTICAL_RESOLUTION, false );
@@ -30,9 +29,6 @@ void Emulator_t::Init()
 
     m_InputManager.Init();
 }
-
-uint32_t FrameCounter = 0;
-uint32_t Fps = 0;
 
 bool Emulator_t::Run()
 {
@@ -58,21 +54,9 @@ bool Emulator_t::Run()
         }
         
         uint32_t msec = TimeCounterGetMsec();
-        
-        
+                
         m_GameConsole.ProcessingOneFrame( msec );
-
-        Fps = m_GameConsole.GetFramesPerSecond();
-       
-        FrameCounter++;
-        
-        if( FrameCounter > 20000 )
-        {
-            printf( "FPS=%d\n", Fps );
-            fflush( stdout );
-            inputManagerInfo.General.IsExit = true;
-        }
-        
+                
         ShowFps( m_GameConsole.GetFramesPerSecond() );
     }
 
@@ -166,9 +150,6 @@ void Emulator_t::LoadGameRom()
     m_GameConsole.LoadGameRomFile( m_RomManager.GetDataPointer(), m_RomManager.GetRomSize() );
     m_AudioDac.Init();
     m_GameConsoleStarted = true;
-    
-    FrameCounter = 0;
-    Fps = 0;
 }
     
 void Emulator_t::SaveVramDump()
@@ -249,16 +230,14 @@ void Emulator_t::RomFileAcces( void* pContext, uint8_t* pData, uint32_t offset, 
     Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
     uint8_t* pSource = pEmulator->m_RomManager.GetDataPointer() + offset;
 
-    for ( uint16_t i = 0; i != bytesCnt; i++ ) // Подгружаем bytesCnt байт из файла игры в картридж
+    for ( uint16_t idx = 0; idx != bytesCnt; idx++ )
     {
-        *pData++ = *pSource++;
+        pData[ idx ] = pSource[ idx ];
     }
 }
 
 void Emulator_t::PresentScanLineCallBack( void* pContext, uint8_t* pData, uint16_t scanLine )
 {    
-    //UNUSED( len );
-
     Emulator_t* pEmulator = static_cast< Emulator_t* >( pContext );
 
 
@@ -283,21 +262,18 @@ void Emulator_t::PresentScanLineCallBack( void* pContext, uint8_t* pData, uint16
 
 #else
 
-    static uint32_t* pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer();
-    static uint32_t* pPalette = GetPalettePixelRGBA();
-    static uint32_t  displayAlign = pEmulator->m_Display.GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
-
+    uint32_t  displayAlign = pEmulator->m_Display.GetSizeHorizontal() - PPU_HORIZONTAL_RESOLUTION;
+    uint32_t* pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer() + ( PPU_HORIZONTAL_RESOLUTION + displayAlign ) * scanLine;
+    uint32_t* pPalette = GetPalettePixelRGBA();
+    
     for( uint16_t xVisible = 0; xVisible < PPU_HORIZONTAL_RESOLUTION; xVisible++ ) 
     {
-        *pPixel ++= pPalette[ *pData++ ];
+        pPixel[ xVisible ] = pPalette[ pData[ xVisible ] ];
     }
 
-    pPixel += displayAlign;
-
-     if( 0 == scanLine )
+    if( 0 == scanLine )
     {
         pEmulator->m_Display.Flip();
-        pPixel = ( uint32_t* )pEmulator->m_Display.GetFrameBuffer();
     }
 
 #endif
