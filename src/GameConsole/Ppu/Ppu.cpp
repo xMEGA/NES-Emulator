@@ -290,10 +290,11 @@ void Ppu_t::VideoRamBgFetch()
     m_BgHighTile.LowPart      =  m_fpBusRead( m_pContext, videoRamAddr + PPU_PATTERN_SIZE );
 
 }
-
+ 
 uint32_t Ppu_t::Run( uint16_t cpuCycles )
 {
-    uint32_t reqCycles = PPU_CYCLES_PER_CPU_CYCLES * cpuCycles;
+    uint32_t reqCycles = cpuCycles * PPU_CYCLES_PER_CPU_CYCLES;
+    uint32_t returnCycles = reqCycles;
 
     for( uint32_t idx = 0; idx < reqCycles; idx++ )
     {
@@ -318,9 +319,10 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
             m_LineCounter = 0;
             m_IsOddFrame ^= SET_BIT;                      // Toggle Odd/Even frame
 
-            if( SET_BIT == m_IsOddFrame )
+            if( ( SET_BIT == m_IsOddFrame ) && m_PpuRegisters.C2.BgVisibleEnable && m_PpuRegisters.C2.SpritesVisibleEnable )
             {
                 m_PpuCycles++;
+                returnCycles--;
             }
 
             m_PosX = m_PpuCycles;
@@ -461,7 +463,7 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
         }
     }
 
-    return reqCycles;
+    return returnCycles;
 }
 
 

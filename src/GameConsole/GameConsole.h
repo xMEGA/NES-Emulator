@@ -111,7 +111,7 @@ private:
     uint16_t       m_FramesCnt;
     uint64_t       m_FramesLastSysTick;
     uint16_t       m_CpuCycles;
-
+    uint32_t       m_PpuCycles;
 private:
     PresentScanLineCallBack_t m_fpPresentScanLineCallBack;
     RomFileAccesCallBack_t    m_fpRomFileAccesCallBack;

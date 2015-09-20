@@ -184,6 +184,7 @@ void GameConsole_t::Init()
     m_FramesCnt         = 0;
     m_FramesLastSysTick = 0;
     m_CpuCycles         = 0;
+    m_PpuCycles         = 0;
     m_pMapper           = NULL;
 }
 
@@ -206,21 +207,24 @@ void GameConsole_t::ProcessingOneFrame( uint64_t sysTick )
     uint64_t deltaTime = sysTick - m_LastSysTick;
 
 
-    //if ( deltaTime > ONE_FRAME_TIME )
+    if ( deltaTime > ONE_FRAME_TIME )
     {
         m_LastSysTick = sysTick;
 
-        m_CpuCycles = 0;
-
-        uint32_t ppuCycles = 0;
-
+                
         do
         {
-            uint32_t cycles = m_Cpu.ExecuteOneCommand();
-            ppuCycles += m_Ppu.Run( cycles );
-        }
-        while( ppuCycles < 89342 );
+            m_CpuCycles = 0;
         
+            m_CpuCycles += m_Cpu.ExecuteOneCommand();
+            uint32_t ppuCycles = m_Ppu.Run( m_CpuCycles );
+
+            m_PpuCycles += ppuCycles;
+        }
+        while( m_PpuCycles < 89342 );
+       
+        m_PpuCycles -= 89342;
+
         m_FramesCnt++;
     }
 }
