@@ -108,7 +108,7 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <BuildLog>
-      <Path>$(SolutionDir)..\..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
+      <Path>$(SolutionDir)..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,7 +136,7 @@
       <AdditionalLibraryDirectories>..\..\thirdparty\SDL2-VC\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <BuildLog>
-      <Path>$(SolutionDir)..\..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
+      <Path>$(SolutionDir)..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
