@@ -132,8 +132,8 @@ void Ppu_t::Write(uint16_t addr, uint8_t data)
     case PPU_REG_CONTROL_1_ADDR:
         m_PpuRegisters.C1.Value = data;
         m_TempVideoRamAddr.NameTableSelect = data;
-        m_SpriteSize   = ( true == m_PpuRegisters.C1.SpriteSize ) ? 16 : 8;
-        m_AddrIncValue = ( true == m_PpuRegisters.C1.IncVideoRamAddr ) ? 32 : 1;
+        m_SpriteSize   = ( 0 != m_PpuRegisters.C1.SpriteSize ) ? 16 : 8;
+        m_AddrIncValue = ( 0 != m_PpuRegisters.C1.IncVideoRamAddr ) ? 32 : 1;
     break;
 
     case PPU_REG_CONTROL_2_ADDR:
@@ -439,7 +439,7 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
         {
             m_PpuRegisters.SR.VsyncFlag = SET_BIT;
 
-            if( true == m_PpuRegisters.C1.NmiRequestEnable )
+            if( 0 != m_PpuRegisters.C1.NmiRequestEnable )
             {
                 m_fpVsyncSignal( m_pContext );
             }
