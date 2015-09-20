@@ -26,6 +26,7 @@ build
 /projects/Linux/NetBeans/dist/
 *.v11.suo
 *.project.vcxproj.filter
+*.project.vcxproj.user
 build
 
 #other
