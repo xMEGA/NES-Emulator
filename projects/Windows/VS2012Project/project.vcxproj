@@ -68,12 +68,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\..\..\..\build\Windows\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\..\..\..\build\Temp\Windows\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\..\build\Windows\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\..\build\Temp\Windows\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)/../../../build/Windows/$(Configuration)/</OutDir>
-    <IntDir>$(SolutionDir)/../../../build/Temp/Windows/$(Configuration)/</IntDir>
+    <OutDir>$(SolutionDir)..\..\..\build\Windows\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\..\build\Temp\Windows\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -94,8 +94,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\thirdparty\SDL2\build\windows_x86_64\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <OutputFile>../../../build/Windows/Debug/NesEmulator$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\..\..\thirdparty\SDL2\build\windows_x86_64\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(SolutionDir)\..\..\..\build\Windows\Debug\NesEmulator$(TargetExt)</OutputFile>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -108,7 +108,7 @@
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <BuildLog>
-      <Path>$(SolutionDir)\..\..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
+      <Path>$(SolutionDir)..\..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,7 +136,7 @@
       <AdditionalLibraryDirectories>..\..\thirdparty\SDL2-VC\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <BuildLog>
-      <Path>$(SolutionDir)/../../../../build/Temp/Windows/$(Configuration)/build.log</Path>
+      <Path>$(SolutionDir)..\..\..\..\build\Temp\Windows\$(Configuration)\build.log</Path>
     </BuildLog>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

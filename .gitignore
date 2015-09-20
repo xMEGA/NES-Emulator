@@ -24,6 +24,8 @@ core
 build
 *.sdf
 /projects/Linux/NetBeans/dist/
+*.v11.suo
+*.project.vcxproj.filter
 build
 
 #other
