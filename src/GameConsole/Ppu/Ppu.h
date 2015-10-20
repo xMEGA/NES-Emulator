@@ -90,6 +90,9 @@ struct SpriteFifo_t
 {
     uint8_t          LowTile;
     uint8_t          HighTile;
+    uint8_t          xPos;
+    uint8_t          yPos;
+    SpriteItems_t    Item;
 };
 
 typedef uint8_t (*PpuBusReadCallBack_t)      ( void* pContext, uint16_t busAddr );
@@ -184,7 +187,8 @@ private:
     inline void VideoRamAddrVerticalCopy();
     inline void VideoRamBgFetch();
 
-    inline void SpritesClearEvaluateFetch( uint16_t yPos );
+    inline void SpritesClearEvaluate( uint16_t yPos );
+    inline void SpritesFetch( uint16_t yPos );
 
 private:
     inline uint8_t GetBackgroundPixel( uint16_t xPos );
@@ -227,8 +231,8 @@ private:    // Callbacks
 
 private:
     uint8_t                   m_IsOddFrame;
-    uint16_t                  m_LineCounter;
-    uint16_t                  m_PosX;
+//    uint16_t                  m_LineCounter;
+//    uint16_t                  m_PosX;
     uint32_t                  m_PpuCycles;
 };
 

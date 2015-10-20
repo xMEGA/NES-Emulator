@@ -53,8 +53,6 @@ void Ppu_t::Reset()
     m_PpuCycles   = 0;
     m_IsOddFrame  = SET_BIT;
     m_SpriteSize  = PPU_PATTERN_SIZE;
-    m_LineCounter = 0;
-    m_PosX        = 0;
 }
 
 void Ppu_t::ReflectPalette( uint16_t addr, uint8_t value )
@@ -253,7 +251,7 @@ void Ppu_t::VideoRamAddrVerticalInrement()
         }
         else
         {
-            coarseY ++;                           // increment coarse Y
+            coarseY ++;
         }
 
         m_CurrVideoRamAddr.CoarseScrollY = coarseY;     // put coarse Y back into v
@@ -302,21 +300,12 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
         if( ( m_PpuCycles > PPU_SET_VBLANK_CYCLE ) && ( ( m_PpuCycles + reqCycles ) < PPU_CLEAR_VBLANK_SPRITE0_CYCLE ) ) // Iddle
         {
             m_PpuCycles += reqCycles;
-            m_PosX += reqCycles;
-
-            if( m_PosX >= PPU_CYCLES_PER_LINE )
-            {
-                m_LineCounter++;
-                m_PosX -= PPU_CYCLES_PER_LINE;
-            }
-
             break;
         }
 
         if( m_PpuCycles >= PPU_FRAME_CYCLES )
         {
             m_PpuCycles = 0;
-            m_LineCounter = 0;
             m_IsOddFrame ^= SET_BIT;                      // Toggle Odd/Even frame
 
             if( ( SET_BIT == m_IsOddFrame ) && m_PpuRegisters.C2.BgVisibleEnable && m_PpuRegisters.C2.SpritesVisibleEnable )
@@ -324,18 +313,15 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
                 m_PpuCycles++;
                 returnCycles--;
             }
-
-            m_PosX = m_PpuCycles;
         }
 
-
-#if RENDERING_ENABLE
+        uint16_t m_LineCounter = m_PpuCycles / 341;
+        uint16_t m_PosX = m_PpuCycles % 341;        
 
         if( m_LineCounter <= 239 )
         {
             if( ( m_PosX <= PPU_HORIZONTAL_RESOLUTION ) && ( m_PosX > 0 ) )
             {
-
                 uint16_t xVisible = m_PosX - 1;
 
                 uint8_t spriteColor = m_PpuRegisters.C2.SpritesVisibleEnable * GetSpritePixel( xVisible );
@@ -350,49 +336,84 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
 
                     if( ( yPos >= yPosZeroSprite ) && ( yPos < ( yPosZeroSprite + m_SpriteSize ) ) )
                     {
-                        if( ( xVisible >= xPosZeroSprite) && ( xVisible <= ( xPosZeroSprite + PPU_PATTERN_SIZE ) ) )
+                        if( ( xVisible >= xPosZeroSprite ) && ( xVisible <= ( xPosZeroSprite + PPU_PATTERN_SIZE ) ) )
                         {
-                            if( ( ( bgColor > 0 ) || ( 0 == m_PrimaryOam[ 0 ].Item.BgUpperSprite ) ) && ( spriteColor ) )
+                            if( ( bgColor > 0 ) && ( spriteColor > 0 ) )  /*|| ( 0 == m_PrimaryOam[ 0 ].Item.BgUpperSprite ) */
                             {
                                 m_PpuRegisters.SR.ZeroSpriteDetected = SET_BIT;
                             }
                         }
                     }
                 }
+                
+                if( 0 == ( m_PosX % PPU_CYCLES_PER_FETCH_CYCLE ) )
+                {
+                    if( m_PpuRegisters.C2.BgVisibleEnable )
+                    {
+                        VideoRamBgFetch();
+                        VideoRamAddrHorizontalInrement();
 
-                uint8_t pixelColor = AssemlyPixel( spriteColor, bgColor );
+                        if( PPU_VRAM_ADDR_VERT_INCREMENT_XPOS == m_PosX )
+                        {
+                             VideoRamAddrVerticalInrement();
 
-                m_ScanLine[ xVisible ] = pixelColor;
+                             SpritesClearEvaluate( m_LineCounter + 0 );
+                             SpritesFetch( m_LineCounter + 0 );
+                        }
+                    }
+                }
+
+                m_ScanLine[ xVisible ] = AssemlyPixel( spriteColor, bgColor );
             }
-            else if( 329 == m_PosX )
+            //----
+            
+            else if( PPU_VRAM_ADDR_HORIZONTAL_COPY_XPOS == m_PosX )
             {
                 if( m_PpuRegisters.C2.BgVisibleEnable )
                 {
-                    m_BgHighTile.HidhPart    = m_BgHighTile.LowPart;
-                    m_BgLowTile.HidhPart     = m_BgLowTile.LowPart;
-                    m_SymbolItemByte.LowPart = m_SymbolItemByte.HidhPart;
-                    m_FineScrollX = m_FineScrollXReg;
+                    VideoRamAddrHorizontalCopy();
                 }
+            }
+            else if( ( m_PosX >= PPU_BGND_FETCH_FOR_NEXT_LINE_XPOS ) && ( m_PosX <= 336 ) )
+            {
+                if( m_PpuRegisters.C2.BgVisibleEnable )
+                {
+                    if( 336 == m_PosX )
+                    {
+                        m_BgHighTile.HidhPart    = m_BgHighTile.LowPart;
+                        m_BgLowTile.HidhPart     = m_BgLowTile.LowPart;
+                        m_SymbolItemByte.LowPart = m_SymbolItemByte.HidhPart;
+                        m_FineScrollX = m_FineScrollXReg;
+                    }
 
+                    if( 0 == ( m_PosX % PPU_CYCLES_PER_FETCH_CYCLE ) )
+                    {
+                        VideoRamBgFetch();
+                        VideoRamAddrHorizontalInrement();
+                    }
+                }
+            }
+
+
+//!!!
+            if( 336 == m_PosX )
+            {
                 if( NULL != m_fpIrqHook )
                 {
-                     m_fpIrqHook( m_pContext );
+                    m_fpIrqHook( m_pContext );
                 }
 
                 m_fpPresentScanLine( m_pPresenFrameContext, m_ScanLine, m_LineCounter );
             }
+            //----
         }
 
-#endif
-
-
-#if BACKGROUND_FETCH_ENABLE
-
-        if( ( m_LineCounter <= 239) || (261 == m_LineCounter ) )
+                
+        if( 261 == m_LineCounter )
         {
-            if( m_PpuRegisters.C2.BgVisibleEnable)
+            if( m_PpuRegisters.C2.BgVisibleEnable )
             {
-                if( (m_PosX <= PPU_HORIZONTAL_RESOLUTION ) && ( 0 != m_PosX ) )
+                if( ( m_PosX <= PPU_HORIZONTAL_RESOLUTION ) && ( m_PosX > 0 ) )
                 {
                     if( 0 == ( m_PosX % PPU_CYCLES_PER_FETCH_CYCLE ) )
                     {
@@ -403,39 +424,29 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
                         {
                             VideoRamAddrVerticalInrement();
                         }
-
                     }
                 }
-                else if( PPU_VRAM_ADDR_HORIZONTAL_COPY_XPOS == m_PosX )
+                if( PPU_VRAM_ADDR_HORIZONTAL_COPY_XPOS == m_PosX )
                 {
                     VideoRamAddrHorizontalCopy();
                 }
-                else if(  ( m_PosX >= PPU_BGND_FETCH_FOR_NEXT_LINE_XPOS ) && ( m_PosX <= 336 ) )
-                {
-                    if( 0 == ( m_PosX % PPU_CYCLES_PER_FETCH_CYCLE ) )
-                    {
-                        VideoRamBgFetch();
-                        VideoRamAddrHorizontalInrement();
-                    }
-                }
-
-                if( ( 261 == m_LineCounter ) && ( m_PosX >= 280 ) && ( m_PosX <= 304 ) )
+                else if( ( m_PosX >= 280 ) && ( m_PosX <= 304 ) )
                 {
                     VideoRamAddrVerticalCopy();
                 }
+                else if( ( 328 == m_PosX ) || ( 336 == m_PosX ) )
+                {
+                    VideoRamBgFetch();
+                    VideoRamAddrHorizontalInrement();
+                }
             }
-
-#if SPRITES_CLEAR_EVALUATE_FETCH_ENABLE
-
+           
             if( PPU_SPRITE_OAM_CLEARING_BEGIN_XPOS == m_PosX )
             {
-                SpritesClearEvaluateFetch( m_LineCounter );
+                //SpritesClearEvaluate( m_LineCounter );
+                SpritesFetch( m_LineCounter );
             }
-#endif
         }
-
-#endif
-
 
         if( PPU_SET_VBLANK_CYCLE == m_PpuCycles )
         {
@@ -454,13 +465,6 @@ uint32_t Ppu_t::Run( uint16_t cpuCycles )
         }
 
         m_PpuCycles++;
-        m_PosX++;
-
-        if( m_PosX >= PPU_CYCLES_PER_LINE )
-        {
-            m_PosX = 0;
-            m_LineCounter++;
-        }
     }
 
     return returnCycles;
@@ -529,10 +533,8 @@ uint8_t Ppu_t::GetBackgroundPixel( uint16_t xPos )
     return fonePixelColor;
 }
 
-void Ppu_t::SpritesClearEvaluateFetch( uint16_t yPos )
+void Ppu_t::SpritesClearEvaluate( uint16_t yPos )
 {
-    uint16_t nextScanLine = yPos - 1;
-
     memset( m_SecondaryOam, 0xFF, sizeof( m_SecondaryOam ) ); // Clearing Secondary OAM
 
     m_PpuRegisters.SR.SpriteCountPerLine = 0;
@@ -540,9 +542,9 @@ void Ppu_t::SpritesClearEvaluateFetch( uint16_t yPos )
 
     for( uint32_t idx = 0; idx < PPU_NUMBER_OF_SPRITES; idx++ ) // Sprites evaluation
     {
-        SpriteInfo_t spriteInfo = m_PrimaryOam[idx];
+        SpriteInfo_t spriteInfo = m_PrimaryOam[ idx ];
 
-        if( ( nextScanLine >= spriteInfo.yPos ) && ( nextScanLine < ( spriteInfo.yPos + m_SpriteSize ) ) )
+        if( ( yPos >= spriteInfo.yPos ) && ( yPos < ( spriteInfo.yPos + m_SpriteSize ) ) )
         {
             m_SecondaryOam[ evalSpriteIdx ] = spriteInfo;
             evalSpriteIdx++;
@@ -555,11 +557,14 @@ void Ppu_t::SpritesClearEvaluateFetch( uint16_t yPos )
             }
         }
     }
+}
 
+void Ppu_t::SpritesFetch( uint16_t yPos )
+{
     for( uint32_t idx = 0; idx < PPU_MAX_NUMBER_OF_SPRITES_ON_LINE; idx++ ) // Copy from Secondary OAM into FIFO
     {
-        SpriteInfo_t spriteInfo = m_SecondaryOam[idx];
-        uint8_t yPixelOfSprite = nextScanLine - spriteInfo.yPos;
+        SpriteInfo_t spriteInfo = m_SecondaryOam[ idx ];
+        uint8_t yPixelOfSprite = yPos - spriteInfo.yPos;
         uint8_t spriteIdx = spriteInfo.ChrIdx;
 
         uint16_t spritesChrBaseAddr = PPU_CHR1_ROM_BASE_ADDR * m_PpuRegisters.C1.SpriteChrBaseAddr;
@@ -573,7 +578,7 @@ void Ppu_t::SpritesClearEvaluateFetch( uint16_t yPos )
         }
         else
         {
-            spritesChrBaseAddr = PPU_CHR1_ROM_BASE_ADDR * (spriteIdx % 2);
+            spritesChrBaseAddr = PPU_CHR1_ROM_BASE_ADDR * ( spriteIdx % 2 );
             spriteIdx &= 0xFE;
 
             if( spriteInfo.Item.VertMirror )
@@ -587,42 +592,44 @@ void Ppu_t::SpritesClearEvaluateFetch( uint16_t yPos )
 
         uint16_t spriteSymbolRamAddr = spritesChrBaseAddr + yPixelOfSprite + spriteIdx * PPU_CHR_SYMBOL_SIZE;
 
+        m_SpriteFifo[ idx ].xPos      = spriteInfo.xPos;
+        m_SpriteFifo[ idx ].yPos      = spriteInfo.yPos;
+        m_SpriteFifo[ idx ].Item      = spriteInfo.Item;
         m_SpriteFifo[ idx ].LowTile   = m_fpBusRead( m_pContext, spriteSymbolRamAddr );
         m_SpriteFifo[ idx ].HighTile  = m_fpBusRead( m_pContext, spriteSymbolRamAddr + 8 );
-    }
+    } 
 }
+
 
 uint8_t Ppu_t::GetSpritePixel( uint16_t xPos )
 {
     uint8_t retValue = 0;
 
-    for (int8_t nRenderSprite = 0; nRenderSprite < 8; nRenderSprite++) //!!!
+    for( int8_t nRenderSprite = 0; nRenderSprite < 8; nRenderSprite++ ) //!!!
     {
-        SpriteInfo_t* pOam = &m_SecondaryOam[ nRenderSprite ];
+        SpriteFifo_t* pSprite = &m_SpriteFifo[ nRenderSprite ];
 
-        if( ( xPos >= pOam->xPos ) && ( xPos < ( pOam->xPos + 8 ) ) )
+        if( ( xPos >= pSprite->xPos ) && ( xPos < ( pSprite->xPos + 8 ) ) )
         {
-            uint8_t spritePixel = xPos - pOam->xPos;
+            uint8_t spritePixel = xPos - pSprite->xPos;
 
             uint8_t spriteLineOffset = 7 - spritePixel;
 
-            if( pOam->Item.HorMirror)
+            if( pSprite->Item.HorMirror )
             {
                 spriteLineOffset = spritePixel;
             }
-
-            SpriteFifo_t* pSprite = &m_SpriteFifo[ nRenderSprite ];
-
-            uint8_t spritePixelColor = (pSprite->LowTile >> spriteLineOffset) & 0x01;
+            
+            uint8_t spritePixelColor = ( pSprite->LowTile >> spriteLineOffset ) & 0x01;
             spritePixelColor |= ((pSprite->HighTile >> spriteLineOffset) & 0x01) << 1;
 
-            if( spritePixelColor > 0)
+            if( spritePixelColor > 0 )
             {
-                spritePixelColor |= pOam->Item.Color << 2;
+                spritePixelColor |= pSprite->Item.Color << 2;
 
                 retValue = spritePixelColor;
 
-                if( 0 == pOam->Item.BgUpperSprite)
+                if( 0 == pSprite->Item.BgUpperSprite )
                 {
                     retValue |= PPU_SPRITE_PRIORITY_BIT;
                 }
